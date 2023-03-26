@@ -12,9 +12,21 @@ datasource db {
 }
 
 model Example {
+    id String @id @default(cuid())
+}
+
+model Movie {
     id        String   @id @default(cuid())
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+
+    imdbId           String @db.VarChar(255)
+    title            String @db.VarChar(255)
+    plot             String @db.Text
+    rottenRating     Float  @db.Float
+    metacriticRating Float  @db.Float
+    imdbRating       Float  @db.Float
+    imageUrl         String @db.VarChar(255)
 }
 
 // Necessary for Next auth

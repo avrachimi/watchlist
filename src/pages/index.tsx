@@ -16,39 +16,27 @@ import { useEffect, useState } from "react";
 import { z } from "zod";
 import { TRPCClientError } from "@trpc/client";
 import externalApi from "~/server/services/externalApi";
+import { LoadingPage } from "~/components/loading";
 
-interface Props {
-  id: number;
-  name: string;
-  overview: string;
-  vote_average?: number;
-  backdrop_path: string;
-}
-interface Props2 {
-  movies: Movie[];
-}
-
-interface Movie {
-  id: number;
-  name: string;
-  overview: string;
-  vote_average?: number;
-  backdrop_path: string;
-}
-
-const ItemGrid = ({ movies }: Props2) => {
+const movies = [
+  {
+    name: "",
+    backdrop_path: "",
+  },
+];
+const ItemGrid = () => {
   console.log(movies);
   return (
     <div className="grid gap-4 px-2 pt-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {movies.map((movie) => (
-        <Item {...movie} />
+        <Item />
       ))}
     </div>
   );
 };
 
-const Item = (movie: Props) => {
-  console.log(movie);
+const Item = () => {
+  const movie = movies[0]!;
   return (
     <div className="mx-2 flex h-full flex-col items-center justify-center overflow-hidden rounded-lg border-2 border-slate-200">
       <div className="h-full w-full border">
@@ -72,9 +60,41 @@ const Item = (movie: Props) => {
   );
 };
 
-const Home = ({
-  movies,
-}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
+const Feed = () => {
+  const { data, isLoading: moviesLoading } = api.movies.getAll.useQuery();
+
+  if (moviesLoading) return <LoadingPage />;
+
+  if (!data) return <div>Something went wrong {}</div>;
+
+  return (
+    <div className="flex flex-col">
+      {data?.map((movie) => (
+        <div className="mx-2 flex h-full flex-col items-center justify-center overflow-hidden rounded-lg border-2 border-slate-200">
+          <div className="h-full w-full border">
+            <img src={movie.imageUrl} className="h-full w-full object-cover" />
+          </div>
+          <div className="mt-2 text-center text-xl">{movie.title}</div>
+          <div className="grid w-full grid-cols-2 items-end  px-2 py-2">
+            <div className="flex scale-90">
+              <AiFillStar />
+              <AiFillStar />
+              <AiFillStar />
+              <AiFillStar />
+              <AiOutlineStar />
+            </div>
+            <div className="text-right text-xs">
+              <div>watched by</div>
+              <div>5 friends</div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const Home = () => {
   const { data: sessionData } = useSession();
 
   if (!sessionData?.user) {
@@ -99,7 +119,7 @@ const Home = ({
       </Head>
       <main className="min-h-screen bg-gray-900">
         <Navbar />
-        {movies && <ItemGrid movies={movies} />}
+        <Feed />
         <div className="flex items-center justify-center">
           <button
             className="my-5 rounded-lg border-2 border-slate-400 py-2 px-3 hover:bg-slate-700"
@@ -111,29 +131,6 @@ const Home = ({
       </main>
     </>
   );
-};
-
-export const getServerSideProps: GetServerSideProps<{
-  movies: Movie[];
-}> = async () => {
-  const params = {
-    api_key: process.env.TMDB_KEY,
-    query: "Greys",
-    /* region: "USA840", */
-  };
-  const { data } = await externalApi.get("/search/multi", { params: params });
-  const movies: Movie[] = data.results;
-  movies.map(
-    (movie) =>
-      (movie.backdrop_path = `https://image.tmdb.org/t/p/original${movie.backdrop_path}`)
-  );
-  movies.filter((movie) => movie.name !== undefined);
-
-  return {
-    props: {
-      movies,
-    },
-  };
 };
 
 export default Home;
