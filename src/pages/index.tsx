@@ -11,7 +11,7 @@ import Image from "next/image";
 
 const ItemGrid = () => {
   return (
-    <div className="grid px-2 pt-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <div className="grid gap-4 px-2 pt-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       <Item
         title="Breaking Bad"
         imageUrl="https://cdn10.phillymag.com/wp-content/uploads/2013/10/Breaking-Bad-940.jpg"
@@ -39,11 +39,12 @@ interface Props {
 
 const Item = ({ title, imageUrl }: Props) => {
   return (
-    <div className="mx-3 my-3 flex flex-col items-center justify-center overflow-hidden rounded-lg border-2 border-slate-200">
-      <div className="h-full w-full">
-        <img src={imageUrl} alt="thumbnail" className=" object-cover" />
+    <div className="mx-2 flex h-full flex-col items-center justify-center overflow-hidden rounded-lg border-2 border-slate-200">
+      <div className="h-full w-full border">
+        <img src={imageUrl} className="h-full w-full object-cover" />
       </div>
-      <div className="grid h-2/6 w-full grid-cols-3 items-end  px-2 pt-4 pb-2">
+      <div className="mt-2 text-center text-xl">{title}</div>
+      <div className="grid w-full grid-cols-2 items-end  px-2 py-2">
         <div className="flex scale-90">
           <AiFillStar />
           <AiFillStar />
@@ -51,7 +52,6 @@ const Item = ({ title, imageUrl }: Props) => {
           <AiFillStar />
           <AiOutlineStar />
         </div>
-        <div className="text-center text-xl">{title}</div>
         <div className="text-right text-xs">
           <div>watched by</div>
           <div>5 friends</div>
