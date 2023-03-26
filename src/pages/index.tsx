@@ -86,6 +86,14 @@ const Home: NextPage = () => {
       <main className="min-h-screen bg-gray-900">
         <Navbar />
         <ItemGrid />
+        <div className="flex items-center justify-center">
+          <button
+            className="my-5 rounded-lg border-2 border-slate-400 py-2 px-3 hover:bg-slate-700"
+            onClick={() => signOut()}
+          >
+            Sign out
+          </button>
+        </div>
       </main>
     </>
   );
