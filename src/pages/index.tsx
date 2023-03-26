@@ -1,4 +1,8 @@
-import { type NextPage } from "next";
+import {
+  GetServerSideProps,
+  InferGetServerSidePropsType,
+  type NextPage,
+} from "next";
 import Head from "next/head";
 import Link from "next/link";
 import { signIn, signOut, useSession } from "next-auth/react";
@@ -8,42 +12,49 @@ import { AiFillStar, AiOutlineStar } from "react-icons/ai";
 import { api } from "~/utils/api";
 import { Navbar } from "~/components/navbar";
 import Image from "next/image";
+import { useEffect, useState } from "react";
+import { z } from "zod";
+import { TRPCClientError } from "@trpc/client";
+import externalApi from "~/server/services/externalApi";
 
-const ItemGrid = () => {
+interface Props {
+  id: number;
+  name: string;
+  overview: string;
+  vote_average?: number;
+  backdrop_path: string;
+}
+interface Props2 {
+  movies: Movie[];
+}
+
+interface Movie {
+  id: number;
+  name: string;
+  overview: string;
+  vote_average?: number;
+  backdrop_path: string;
+}
+
+const ItemGrid = ({ movies }: Props2) => {
+  console.log(movies);
   return (
     <div className="grid gap-4 px-2 pt-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-      <Item
-        title="Breaking Bad"
-        imageUrl="https://cdn10.phillymag.com/wp-content/uploads/2013/10/Breaking-Bad-940.jpg"
-      />
-      <Item
-        title="The Last of Us"
-        imageUrl="https://i0.wp.com/bloody-disgusting.com/wp-content/uploads/2022/11/last-of-us-tv-2.png"
-      />
-      <Item
-        title="South Park"
-        imageUrl="https://townsquare.media/site/1096/files/2018/06/SouthPark-header.jpg"
-      />
-      <Item
-        title="You"
-        imageUrl="https://mattsviews.files.wordpress.com/2020/07/you-poster-netflix.jpg"
-      />
+      {movies.map((movie) => (
+        <Item {...movie} />
+      ))}
     </div>
   );
 };
 
-interface Props {
-  title: string;
-  imageUrl: string;
-}
-
-const Item = ({ title, imageUrl }: Props) => {
+const Item = (movie: Props) => {
+  console.log(movie);
   return (
     <div className="mx-2 flex h-full flex-col items-center justify-center overflow-hidden rounded-lg border-2 border-slate-200">
       <div className="h-full w-full border">
-        <img src={imageUrl} className="h-full w-full object-cover" />
+        <img src={movie.backdrop_path} className="h-full w-full object-cover" />
       </div>
-      <div className="mt-2 text-center text-xl">{title}</div>
+      <div className="mt-2 text-center text-xl">{movie.name}</div>
       <div className="grid w-full grid-cols-2 items-end  px-2 py-2">
         <div className="flex scale-90">
           <AiFillStar />
@@ -61,7 +72,9 @@ const Item = ({ title, imageUrl }: Props) => {
   );
 };
 
-const Home: NextPage = () => {
+const Home = ({
+  movies,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const { data: sessionData } = useSession();
 
   if (!sessionData?.user) {
@@ -76,6 +89,7 @@ const Home: NextPage = () => {
       </div>
     );
   }
+
   return (
     <>
       <Head>
@@ -85,7 +99,7 @@ const Home: NextPage = () => {
       </Head>
       <main className="min-h-screen bg-gray-900">
         <Navbar />
-        <ItemGrid />
+        {movies && <ItemGrid movies={movies} />}
         <div className="flex items-center justify-center">
           <button
             className="my-5 rounded-lg border-2 border-slate-400 py-2 px-3 hover:bg-slate-700"
@@ -97,6 +111,29 @@ const Home: NextPage = () => {
       </main>
     </>
   );
+};
+
+export const getServerSideProps: GetServerSideProps<{
+  movies: Movie[];
+}> = async () => {
+  const params = {
+    api_key: process.env.TMDB_KEY,
+    query: "Greys",
+    /* region: "USA840", */
+  };
+  const { data } = await externalApi.get("/search/multi", { params: params });
+  const movies: Movie[] = data.results;
+  movies.map(
+    (movie) =>
+      (movie.backdrop_path = `https://image.tmdb.org/t/p/original${movie.backdrop_path}`)
+  );
+  movies.filter((movie) => movie.name !== undefined);
+
+  return {
+    props: {
+      movies,
+    },
+  };
 };
 
 export default Home;

@@ -1,9 +1,11 @@
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { AiOutlineMenu } from "react-icons/ai";
 import logo from "~/logo.svg";
 
 export const Navbar = () => {
+  const { data: sessionData } = useSession();
   return (
     <div className="flex items-center justify-between bg-slate-600 py-2 px-4">
       <div className="">
@@ -11,7 +13,6 @@ export const Navbar = () => {
           <Image src={logo} width={24} height={24} alt="Logo" />
         </Link>
       </div>
-
       <form className="w-4/6">
         <div className="relative">
           <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -46,9 +47,23 @@ export const Navbar = () => {
           </button>
         </div>
       </form>
-
-      <div className="cursor-pointer">
-        <AiOutlineMenu size={22} />
+      <div className="">
+        <AiOutlineMenu size={22} className="cursor-pointer xl:hidden" />
+        <div className="hidden xl:block">
+          <Link href={"/"} className="px-2">
+            Home
+          </Link>
+          <Link href={"/account"} className="px-4">
+            {/* <Image
+              src={sessionData?.user.image ?? ""}
+              className="rounded border"
+              width={56}
+              height={56}
+              alt="Account"
+            /> */}
+            Account
+          </Link>
+        </div>
       </div>
     </div>
   );
