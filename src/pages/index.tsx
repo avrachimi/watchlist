@@ -2,9 +2,64 @@ import { type NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
 import { signIn, signOut, useSession } from "next-auth/react";
+import thumbnail from "~/thumbnail.jpg";
+import { AiFillStar, AiOutlineStar } from "react-icons/ai";
 
 import { api } from "~/utils/api";
 import { Navbar } from "~/components/navbar";
+import Image from "next/image";
+
+const ItemGrid = () => {
+  return (
+    <div className="grid px-2 pt-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <Item
+        title="Breaking Bad"
+        imageUrl="https://cdn10.phillymag.com/wp-content/uploads/2013/10/Breaking-Bad-940.jpg"
+      />
+      <Item
+        title="The Last of Us"
+        imageUrl="https://i0.wp.com/bloody-disgusting.com/wp-content/uploads/2022/11/last-of-us-tv-2.png"
+      />
+      <Item
+        title="South Park"
+        imageUrl="https://townsquare.media/site/1096/files/2018/06/SouthPark-header.jpg"
+      />
+      <Item
+        title="You"
+        imageUrl="https://mattsviews.files.wordpress.com/2020/07/you-poster-netflix.jpg"
+      />
+    </div>
+  );
+};
+
+interface Props {
+  title: string;
+  imageUrl: string;
+}
+
+const Item = ({ title, imageUrl }: Props) => {
+  return (
+    <div className="mx-3 my-3 flex flex-col items-center justify-center overflow-hidden rounded-lg border-2 border-slate-200">
+      <div className="h-full w-full">
+        <img src={imageUrl} alt="thumbnail" className=" object-cover" />
+      </div>
+      <div className="grid h-2/6 w-full grid-cols-3 items-end  px-2 pt-4 pb-2">
+        <div className="flex scale-90">
+          <AiFillStar />
+          <AiFillStar />
+          <AiFillStar />
+          <AiFillStar />
+          <AiOutlineStar />
+        </div>
+        <div className="text-center text-xl">{title}</div>
+        <div className="text-right text-xs">
+          <div>watched by</div>
+          <div>5 friends</div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const Home: NextPage = () => {
   const { data: sessionData } = useSession();
@@ -30,6 +85,7 @@ const Home: NextPage = () => {
       </Head>
       <main className="min-h-screen bg-gray-900">
         <Navbar />
+        <ItemGrid />
       </main>
     </>
   );
