@@ -26,7 +26,8 @@ model Movie {
     rottenRating     Float  @db.Float
     metacriticRating Float  @db.Float
     imdbRating       Float  @db.Float
-    imageUrl         String @db.VarChar(255)
+    imageUrl         String @db.VarChar(2000)
+    type             String @db.VarChar(50)
 }
 
 // Necessary for Next auth

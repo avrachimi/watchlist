@@ -8,12 +8,7 @@
 const config = {
   reactStrictMode: true,
   images: {
-    domains: [
-      "cdn10.phillymag.com",
-      "i0.wp.com",
-      "townsquare.media",
-      "mattsviews.files.wordpress.com",
-    ],
+    domains: ["m.media-amazon.com", "images.unsplash.com"],
   },
   /**
    * If you have the "experimental: { appDir: true }" setting enabled, then you
