@@ -33,22 +33,22 @@ model Movie {
 // Necessary for Next auth
 model Account {
     id                       String  @id @default(cuid())
-    userId                   String
+    userId                   String  @db.VarChar(1000)
     type                     String
     provider                 String
     providerAccountId        String
-    refresh_token            String? @db.VarChar(255)
+    refresh_token            String? @db.Text
     refresh_token_expires_in Int?
-    access_token             String? @db.VarChar(255)
+    access_token             String? @db.Text
     expires_at               Int?
     token_type               String?
     scope                    String?
-    id_token                 String? @db.VarChar(255)
+    id_token                 String? @db.Text
     session_state            String?
     user                     User    @relation(fields: [userId], references: [id])
 
     @@unique([provider, providerAccountId])
-    @@index([userId])
+    @@index([userId(length: 100)])
 }
 
 model Session {
@@ -62,7 +62,7 @@ model Session {
 }
 
 model User {
-    id            String    @id @default(cuid())
+    id            String    @id(length: 100) @default(cuid()) @db.VarChar(1000)
     name          String?
     email         String?   @unique
     emailVerified DateTime?

@@ -51,32 +51,11 @@ export const authOptions: NextAuthOptions = {
     },
   },
   adapter: PrismaAdapter(prisma),
+  debug: true,
   providers: [
-    FacebookProvider({
-      clientId: env.FACEBOOK_CLIENT_ID,
-      clientSecret: env.FACEBOOK_CLIENT_SECRET,
-      profile(profile) {
-        return {
-          id: profile.id,
-          name: profile.name,
-          user: profile.given_name,
-          email: profile.email,
-          image: profile.picture,
-        };
-      },
-    }),
     GitHubProvider({
       clientId: env.GITHUB_CLIENT_ID,
       clientSecret: env.GITHUB_CLIENT_SECRET,
-      profile(profile) {
-        return {
-          id: profile.id,
-          name: profile.name,
-          user: profile.given_name,
-          email: profile.email,
-          image: profile.picture,
-        };
-      },
     }),
     GoogleProvider({
       clientId: env.GOOGLE_CLIENT_ID,
