@@ -2,7 +2,8 @@ import Head from "next/head";
 import Link from "next/link";
 import { signIn, signOut, useSession } from "next-auth/react";
 import thumbnail from "~/thumbnail.jpg";
-import { AiFillStar, AiOutlineStar, AiTwotoneEye } from "react-icons/ai";
+import { AiTwotoneEye } from "react-icons/ai";
+import { BsStarFill, BsStar, BsStarHalf } from "react-icons/bs";
 
 import { api } from "~/utils/api";
 import { Navbar } from "~/components/navbar";
@@ -20,7 +21,19 @@ const Feed = () => {
 
   if (!data) return <div>Something went wrong {}</div>;
 
-  console.log(data[0]?.imageUrl);
+  const maxPlotLength = 70;
+  const ReviewStars = ({ rating }: { rating: number }) => {
+    let reviewComponent = [];
+    for (let i = 0; i < rating; i++) {
+      if (rating - i >= 1) reviewComponent.push(<BsStarFill key={i} />);
+      else if (rating - i > 0 && rating - i < 1)
+        reviewComponent.push(<BsStarHalf key={i} />);
+      else reviewComponent.push(<BsStar key={i} />);
+    }
+
+    return <div className="left-0 flex gap-1 text-left">{reviewComponent}</div>;
+  };
+
   return (
     <div className="">
       <div className="m-1.5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
@@ -35,18 +48,13 @@ const Feed = () => {
             />
             <div className="flex h-28 w-full flex-col items-center justify-between">
               <div className="mt-2 text-center text-xl">{movie.title}</div>
-              <div className="w-[80%] py-1 pt-3 text-center text-sm">
-                {/* {movie.plot} */}
-                some details here
+              <div className="w-[90%] py-1 text-center text-sm">
+                {movie.plot.length < maxPlotLength
+                  ? movie.plot
+                  : `${movie.plot.substring(0, maxPlotLength)}...`}
               </div>
-              <div className="mt-1 grid w-full grid-cols-2 items-end px-2 pb-2">
-                <div className="flex scale-90">
-                  {movie.imdbRating >= 1 && <AiFillStar />}
-                  {movie.imdbRating >= 2 && <AiFillStar />}
-                  {movie.imdbRating >= 3 && <AiFillStar />}
-                  <AiFillStar />
-                  <AiOutlineStar />
-                </div>
+              <div className="mt-1 grid w-full grid-cols-2 items-end px-1 pb-2">
+                <ReviewStars rating={movie.imdbRating} />
                 <div className="text-right text-sm">
                   <div className="flex items-center justify-end">
                     <AiTwotoneEye className="mx-1" />

@@ -11,25 +11,6 @@ datasource db {
     relationMode = "prisma"
 }
 
-model Example {
-    id String @id @default(cuid())
-}
-
-model Movie {
-    id        String   @id @default(cuid())
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-
-    imdbId           String @db.VarChar(255)
-    title            String @db.VarChar(255)
-    plot             String @db.Text
-    rottenRating     Float  @db.Float
-    metacriticRating Float  @db.Float
-    imdbRating       Float  @db.Float
-    imageUrl         String @db.VarChar(2000)
-    type             String @db.VarChar(50)
-}
-
 // Necessary for Next auth
 model Account {
     id                       String  @id @default(cuid())
@@ -77,4 +58,20 @@ model VerificationToken {
     expires    DateTime
 
     @@unique([identifier, token])
+}
+
+// My schema
+model Movie {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    imdbId           String @db.VarChar(255)
+    title            String @db.VarChar(255)
+    plot             String @db.Text
+    rottenRating     Float  @db.Float
+    metacriticRating Float  @db.Float
+    imdbRating       Float  @db.Float
+    imageUrl         String @db.VarChar(2000)
+    type             String @db.VarChar(50)
 }
