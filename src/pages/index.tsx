@@ -18,11 +18,14 @@ const Feed = () => {
   const maxPlotLength = 70;
   const ReviewStars = ({ rating }: { rating: number }) => {
     let reviewComponent = [];
-    for (let i = 0; i < rating; i++) {
-      if (rating - i >= 1) reviewComponent.push(<BsStarFill key={i} />);
-      else if (rating - i > 0 && rating - i < 1)
+    for (let i = 0; i < 5; i++) {
+      if (rating - i >= 1) {
+        reviewComponent.push(<BsStarFill key={i} />);
+      } else if (rating - i > 0 && rating - i < 1) {
         reviewComponent.push(<BsStarHalf key={i} />);
-      else reviewComponent.push(<BsStar key={i} />);
+      } else {
+        reviewComponent.push(<BsStar key={i} />);
+      }
     }
 
     return <div className="left-0 flex gap-1 text-left">{reviewComponent}</div>;
@@ -49,7 +52,7 @@ const Feed = () => {
                   : `${movie.plot.substring(0, maxPlotLength)}...`}
               </div>
               <div className="mt-1 grid w-full grid-cols-2 items-end px-1 pb-2">
-                <ReviewStars rating={movie.imdbRating} />
+                <ReviewStars rating={movie.friendRating} />
                 <div className="text-right text-sm">
                   <div className="flex items-center justify-end">
                     <AiTwotoneEye className="mx-1" />
