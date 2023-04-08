@@ -1,17 +1,11 @@
 import Head from "next/head";
 import Link from "next/link";
 import { signIn, signOut, useSession } from "next-auth/react";
-import thumbnail from "~/thumbnail.jpg";
 import { AiTwotoneEye } from "react-icons/ai";
 import { BsStarFill, BsStar, BsStarHalf } from "react-icons/bs";
 
 import { api } from "~/utils/api";
 import { Navbar } from "~/components/navbar";
-import Image from "next/image";
-import { useEffect, useState } from "react";
-import { z } from "zod";
-import { TRPCClientError } from "@trpc/client";
-import externalApi from "~/server/services/externalApi";
 import { LoadingPage } from "~/components/loading";
 
 const Feed = () => {

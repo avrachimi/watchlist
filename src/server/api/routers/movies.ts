@@ -25,6 +25,9 @@ export const movieRouter = createTRPCRouter({
         where: {
           id: input.id,
         },
+        include: {
+          watchedBy: true,
+        },
       });
     }),
 });

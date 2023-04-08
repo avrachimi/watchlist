@@ -7,6 +7,19 @@ import { LoadingPage } from "~/components/loading";
 import { InferGetStaticPropsType, GetStaticProps } from "next";
 import { Movie } from "@prisma/client";
 import { useRouter } from "next/router";
+import { BsStar, BsStarFill, BsStarHalf } from "react-icons/bs";
+
+const ReviewStars = ({ rating }: { rating: number }) => {
+  let reviewComponent = [];
+  for (let i = 0; i < rating; i++) {
+    if (rating - i >= 1) reviewComponent.push(<BsStarFill key={i} />);
+    else if (rating - i > 0 && rating - i < 1)
+      reviewComponent.push(<BsStarHalf key={i} />);
+    else reviewComponent.push(<BsStar key={i} />);
+  }
+
+  return <div className="left-0 flex gap-1 text-left">{reviewComponent}</div>;
+};
 
 const SingleMovie = () => {
   const { data: sessionData } = useSession();
@@ -15,7 +28,13 @@ const SingleMovie = () => {
 
   if (typeof id !== "string" || !id) id = "";
 
-  const { data: movie } = api.movie.getById.useQuery({ id: id });
+  const { data: movie, isLoading: moviesLoading } = api.movie.getById.useQuery({
+    id: id,
+  });
+
+  if (moviesLoading) return <LoadingPage />;
+
+  if (!movie) return <div>Couldn't load movie. Try again.</div>;
 
   if (!sessionData?.user) {
     return (
@@ -39,7 +58,23 @@ const SingleMovie = () => {
       </Head>
       <main className="min-h-screen bg-gray-900">
         <Navbar />
-        movie {movie?.id}
+        <div className="flex flex-col items-center justify-center">
+          <div className="my-2 text-3xl">{movie.title}</div>
+          <img
+            src={movie.imageUrl}
+            className="my-3 w-[65%] border object-contain"
+          />
+          <ReviewStars rating={movie.imdbRating} />
+          <div className="text-md my-10 px-4 text-center">{movie.plot}</div>
+          <div className="my-2 flex w-full flex-col items-center justify-center text-center">
+            <span className="text-lg underline">Watched By</span>
+            <span>
+              {movie.watchedBy.map((user) => (
+                <div className="text-sm">{user.name}</div>
+              ))}
+            </span>
+          </div>
+        </div>
         <div className="flex items-center justify-center">
           <button
             className="my-5 rounded-lg border-2 border-slate-400 py-2 px-3 hover:bg-slate-700"
