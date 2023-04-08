@@ -51,6 +51,7 @@ model User {
     accounts      Account[]
     sessions      Session[]
     watchedMovies Movie[]
+    Rating        Rating[]
 }
 
 model VerificationToken {
@@ -67,14 +68,33 @@ model Movie {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    imdbId           String @db.VarChar(255)
-    title            String @db.VarChar(255)
-    plot             String @db.Text
-    rottenRating     Float  @db.Float
-    metacriticRating Float  @db.Float
-    imdbRating       Float  @db.Float
-    friendRating     Float  @default(0.0) @db.Float
-    imageUrl         String @db.VarChar(2000)
-    type             String @db.VarChar(50)
+    imdbId           String   @db.VarChar(255)
+    title            String   @db.VarChar(255)
+    plot             String   @db.Text
+    rottenRating     Float    @db.Float
+    metacriticRating Float    @db.Float
+    imdbRating       Float    @db.Float
+    friendRating     Float    @default(0.0) @db.Float
+    imageUrl         String   @db.VarChar(2000)
+    type             String   @db.VarChar(50)
     watchedBy        User[]
+    Rating           Rating[]
+}
+
+model Rating {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    rating Float  @db.Float
+    review String @default("") @db.Text
+
+    movieId String
+    userId  String @db.VarChar(100)
+
+    movie Movie @relation(fields: [movieId], references: [id])
+    user  User  @relation(fields: [userId], references: [id])
+
+    @@index([userId])
+    @@index([movieId])
 }

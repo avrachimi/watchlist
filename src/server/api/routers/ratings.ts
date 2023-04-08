@@ -6,29 +6,27 @@ import {
   protectedProcedure,
 } from "~/server/api/trpc";
 
-export const movieRouter = createTRPCRouter({
+export const ratingRouter = createTRPCRouter({
   getAll: protectedProcedure.query(({ ctx }) => {
-    return ctx.prisma.movie.findMany({
+    return ctx.prisma.rating.findMany({
       include: {
-        watchedBy: true,
-        Rating: true,
+        user: true,
       },
     });
   }),
-  getById: protectedProcedure
+  getByMovieId: protectedProcedure
     .input(
       z.object({
-        id: z.string(),
+        movieId: z.string(),
       })
     )
     .query(({ ctx, input }) => {
-      return ctx.prisma.movie.findUnique({
+      return ctx.prisma.rating.findMany({
         where: {
-          id: input.id,
+          movieId: input.movieId,
         },
         include: {
-          watchedBy: true,
-          Rating: true,
+          user: true,
         },
       });
     }),

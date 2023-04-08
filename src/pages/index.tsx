@@ -7,6 +7,7 @@ import { BsStarFill, BsStar, BsStarHalf } from "react-icons/bs";
 import { api } from "~/utils/api";
 import { Navbar } from "~/components/navbar";
 import { LoadingPage } from "~/components/loading";
+import ReviewStars from "~/components/ReviewStars";
 
 const Feed = () => {
   const { data, isLoading: moviesLoading } = api.movie.getAll.useQuery();
@@ -16,19 +17,20 @@ const Feed = () => {
   if (!data) return <div>Something went wrong {}</div>;
 
   const maxPlotLength = 70;
-  const ReviewStars = ({ rating }: { rating: number }) => {
-    let reviewComponent = [];
-    for (let i = 0; i < 5; i++) {
-      if (rating - i >= 1) {
-        reviewComponent.push(<BsStarFill key={i} />);
-      } else if (rating - i > 0 && rating - i < 1) {
-        reviewComponent.push(<BsStarHalf key={i} />);
-      } else {
-        reviewComponent.push(<BsStar key={i} />);
-      }
-    }
 
-    return <div className="left-0 flex gap-1 text-left">{reviewComponent}</div>;
+  interface Rating {
+    id: string;
+    rating: number;
+    review: string;
+  }
+
+  const getAvgRating = (ratings: any) => {
+    let sum = 0;
+    for (let rating of ratings) {
+      sum += rating.rating;
+    }
+    const avg = sum / ratings.length;
+    return avg ? avg : 0.0;
   };
 
   return (
@@ -52,7 +54,7 @@ const Feed = () => {
                   : `${movie.plot.substring(0, maxPlotLength)}...`}
               </div>
               <div className="mt-1 grid w-full grid-cols-2 items-end px-1 pb-2">
-                <ReviewStars rating={movie.friendRating} />
+                <ReviewStars rating={getAvgRating(movie.Rating)} />
                 <div className="text-right text-sm">
                   <div className="flex items-center justify-end">
                     <AiTwotoneEye className="mx-1" />

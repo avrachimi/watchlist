@@ -7,22 +7,7 @@ import { LoadingPage } from "~/components/loading";
 import { InferGetStaticPropsType, GetStaticProps } from "next";
 import { Movie } from "@prisma/client";
 import { useRouter } from "next/router";
-import { BsStar, BsStarFill, BsStarHalf } from "react-icons/bs";
-
-const ReviewStars = ({ rating }: { rating: number }) => {
-  let reviewComponent = [];
-  for (let i = 0; i < 5; i++) {
-    if (rating - i >= 1) {
-      reviewComponent.push(<BsStarFill key={i} />);
-    } else if (rating - i > 0 && rating - i < 1) {
-      reviewComponent.push(<BsStarHalf key={i} />);
-    } else {
-      reviewComponent.push(<BsStar key={i} />);
-    }
-  }
-
-  return <div className="left-0 flex gap-1 text-left">{reviewComponent}</div>;
-};
+import ReviewStars from "~/components/ReviewStars";
 
 const SingleMovie = () => {
   const { data: sessionData } = useSession();
@@ -52,6 +37,49 @@ const SingleMovie = () => {
     );
   }
 
+  const getAvgRating = (ratings: typeof movie.Rating) => {
+    let sum = 0;
+    for (let rating of ratings) {
+      sum += rating.rating;
+    }
+
+    return sum / ratings.length;
+  };
+
+  const Review = ({ movieId }: { movieId: string }) => {
+    const { data: ratings } = api.rating.getByMovieId.useQuery({
+      movieId: movieId,
+    });
+
+    if (!ratings) return <div>No ratings found</div>;
+
+    const reviewComponents = [];
+
+    for (let rating of ratings) {
+      reviewComponents.push(
+        <div key={rating.id} className="my-5 rounded-md border p-3">
+          <div className="flex items-center justify-between border-b pb-2">
+            <div className="text-md">{rating.user.name}</div>
+            <div>
+              <ReviewStars rating={rating.rating} />
+            </div>
+          </div>
+          <div className="m-2 mt-4 text-sm">{rating.review}</div>
+          <div className="mx-2 text-sm text-gray-400">
+            {rating.createdAt.toDateString()}
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="w-[90%]">
+        <div className="mb-5 text-lg underline">Reviews</div>
+        {reviewComponents}
+      </div>
+    );
+  };
+
   return (
     <>
       <Head>
@@ -67,20 +95,26 @@ const SingleMovie = () => {
             src={movie.imageUrl}
             className="my-3 w-[65%] border object-contain"
           />
-          <ReviewStars rating={movie.friendRating} />
+          <ReviewStars rating={getAvgRating(movie.Rating)} />
           <div className="mt-5 flex w-full items-center justify-around text-center">
-            <div>
-              <span className="text-sm">IMDB</span>
-              <ReviewStars rating={movie.imdbRating} />
-            </div>
-            <div>
-              <span className="text-sm">Rotten</span>
-              <ReviewStars rating={movie.rottenRating} />
-            </div>
-            <div>
-              <span className="text-sm">Metacritic</span>
-              <ReviewStars rating={movie.metacriticRating} />
-            </div>
+            {movie.imdbRating > 0 && (
+              <div>
+                <span className="text-sm">IMDB</span>
+                <ReviewStars rating={movie.imdbRating} />
+              </div>
+            )}
+            {movie.rottenRating > 0 && (
+              <div>
+                <span className="text-sm">Rotten</span>
+                <ReviewStars rating={movie.rottenRating} />
+              </div>
+            )}
+            {movie.metacriticRating > 0 && (
+              <div>
+                <span className="text-sm">Metacritic</span>
+                <ReviewStars rating={movie.metacriticRating} />
+              </div>
+            )}
           </div>
           <div className="text-md my-10 px-4 text-center">{movie.plot}</div>
           <div className="my-2 flex w-full flex-col items-center justify-center text-center">
@@ -90,6 +124,9 @@ const SingleMovie = () => {
                 <div className="text-sm">{user.name}</div>
               ))}
             </span>
+          </div>
+          <div className="mt-8 flex w-full flex-col items-center justify-center">
+            <Review movieId={movie.id} />
           </div>
         </div>
         <div className="flex items-center justify-center">
