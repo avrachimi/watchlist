@@ -10,7 +10,11 @@ export const movieRouter = createTRPCRouter({
   getAll: protectedProcedure.query(({ ctx }) => {
     return ctx.prisma.movie.findMany({
       include: {
-        watchedBy: true,
+        Watched: {
+          include: {
+            user: true,
+          },
+        },
         Rating: true,
       },
     });
@@ -27,8 +31,27 @@ export const movieRouter = createTRPCRouter({
           id: input.id,
         },
         include: {
-          watchedBy: true,
+          Watched: {
+            include: {
+              user: true,
+            },
+          },
           Rating: true,
+        },
+      });
+    }),
+  markWatched: protectedProcedure
+    .input(
+      z.object({
+        movieId: z.string(),
+        userId: z.string(),
+      })
+    )
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.watched.create({
+        data: {
+          movieId: input.movieId,
+          userId: input.userId,
         },
       });
     }),

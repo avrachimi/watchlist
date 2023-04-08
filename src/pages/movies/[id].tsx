@@ -9,11 +9,14 @@ import { Movie } from "@prisma/client";
 import { useRouter } from "next/router";
 import ReviewStars from "~/components/ReviewStars";
 import { NextResponse } from "next/server";
+import { useState } from "react";
 
 const SingleMovie = () => {
+  const [watchedBy, setWatchedBy] = useState([""]);
   const { data: sessionData } = useSession();
   const router = useRouter();
   let { id } = router.query;
+  const { mutate, error } = api.movie.markWatched.useMutation();
 
   if (typeof id !== "string" || !id) id = "";
 
@@ -38,6 +41,11 @@ const SingleMovie = () => {
     return sum / ratings.length;
   };
 
+  const markWatched = () => {
+    mutate({ movieId: movie.id, userId: sessionData.user.id });
+    setWatchedBy((prevVal) => [...prevVal, sessionData.user.name]);
+  };
+
   const WriteReview = ({
     movieId,
     userId,
@@ -50,7 +58,7 @@ const SingleMovie = () => {
       <div className="rounded-lg border">
         <div className="p-2 text-center">Write a review</div>
         <form
-          className="flex flex-col items-center justify-center gap-2 p-2 text-black"
+          className="flex flex-col items-center justify-center gap-2 p-2"
           onSubmit={(e) => {
             e.preventDefault();
             const formData = new FormData(e.currentTarget);
@@ -68,7 +76,7 @@ const SingleMovie = () => {
           }}
         >
           <input
-            className="w-full rounded-md"
+            className="w-full rounded-md text-black"
             id="rating"
             name="rating"
             type="number"
@@ -78,7 +86,11 @@ const SingleMovie = () => {
             step={0.25}
             required
           />
-          <textarea className="w-full rounded-md" id="review" name="review" />
+          <textarea
+            className="w-full rounded-md text-black"
+            id="review"
+            name="review"
+          />
           {error?.data?.zodError?.fieldErrors.rating && (
             <span className="mb-8 text-red-500">
               {error.data.zodError.fieldErrors.rating}
@@ -90,10 +102,10 @@ const SingleMovie = () => {
             </span>
           )}
           <button
-            className="m-2 w-fit rounded-lg border bg-gray-600 px-2"
+            className="m-2 w-fit rounded-lg border bg-gray-600 px-2 py-1"
             type="submit"
           >
-            Post
+            Post Review
           </button>
         </form>
       </div>
@@ -178,10 +190,16 @@ const SingleMovie = () => {
           <div className="my-2 flex w-full flex-col items-center justify-center text-center">
             <span className="text-lg underline">Watched By</span>
             <span>
-              {movie.watchedBy.map((user) => (
-                <div className="text-sm">{user.name}</div>
+              {movie.Watched.map((watched) => (
+                <div className="text-sm">{watched.user.name}</div>
               ))}
             </span>
+            <button
+              className="mt-10 rounded-md border-2 bg-green-800 p-2 text-gray-200"
+              onClick={markWatched}
+            >
+              Mark as watched
+            </button>
           </div>
           <div className="mt-8 flex w-full flex-col items-center justify-center">
             <Reviews movieId={movie.id} />

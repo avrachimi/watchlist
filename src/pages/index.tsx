@@ -58,7 +58,7 @@ const Feed = () => {
                 <div className="text-right text-sm">
                   <div className="flex items-center justify-end">
                     <AiTwotoneEye className="mx-1" />
-                    <span>{movie.watchedBy.length} friends</span>
+                    <span>{movie.Watched.length} friends</span>
                   </div>
                 </div>
               </div>
