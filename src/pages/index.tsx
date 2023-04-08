@@ -15,7 +15,7 @@ import externalApi from "~/server/services/externalApi";
 import { LoadingPage } from "~/components/loading";
 
 const Feed = () => {
-  const { data, isLoading: moviesLoading } = api.movies.getAll.useQuery();
+  const { data, isLoading: moviesLoading } = api.movie.getAll.useQuery();
 
   if (moviesLoading) return <LoadingPage />;
 
@@ -38,7 +38,8 @@ const Feed = () => {
     <div className="">
       <div className="m-1.5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         {data?.map((movie) => (
-          <div
+          <Link
+            href={`/movies/${movie.id}`}
             key={movie.id}
             className="m-2 flex flex-col items-center justify-between overflow-hidden rounded-lg border-2 border-slate-200"
           >
@@ -58,12 +59,12 @@ const Feed = () => {
                 <div className="text-right text-sm">
                   <div className="flex items-center justify-end">
                     <AiTwotoneEye className="mx-1" />
-                    <span>5 friends</span>
+                    <span>{movie.watchedBy.length} friends</span>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>
