@@ -8,6 +8,7 @@ import { InferGetStaticPropsType, GetStaticProps } from "next";
 import { Movie } from "@prisma/client";
 import { useRouter } from "next/router";
 import ReviewStars from "~/components/ReviewStars";
+import { NextResponse } from "next/server";
 
 const SingleMovie = () => {
   const { data: sessionData } = useSession();
@@ -25,16 +26,7 @@ const SingleMovie = () => {
   if (!movie) return <div>Couldn't load movie. Try again.</div>;
 
   if (!sessionData?.user) {
-    return (
-      <div className="flex h-screen w-full flex-col items-center justify-center bg-gray-900">
-        <button
-          className="rounded-xl bg-white/10 px-10 py-3 font-semibold text-white no-underline transition hover:bg-white/20"
-          onClick={() => void signIn()}
-        >
-          Sign in
-        </button>
-      </div>
-    );
+    return NextResponse.redirect("https://watch.avrachimi.com");
   }
 
   const getAvgRating = (ratings: typeof movie.Rating) => {
@@ -98,21 +90,24 @@ const SingleMovie = () => {
           <ReviewStars rating={getAvgRating(movie.Rating)} />
           <div className="mt-5 flex w-full items-center justify-around text-center">
             {movie.imdbRating > 0 && (
-              <div>
-                <span className="text-sm">IMDB</span>
+              <div className="rounded-md border py-1 px-2">
+                <div className="mb-2 border-b pb-1 text-sm">IMDB</div>
                 <ReviewStars rating={movie.imdbRating} />
+                <span className="text-xs">{movie.imdbRating} / 5</span>
               </div>
             )}
             {movie.rottenRating > 0 && (
-              <div>
-                <span className="text-sm">Rotten</span>
+              <div className="rounded-md border py-1 px-2">
+                <div className="mb-2 border-b pb-1 text-sm">Rotten</div>
                 <ReviewStars rating={movie.rottenRating} />
+                <span className="text-xs">{movie.rottenRating} / 5</span>
               </div>
             )}
             {movie.metacriticRating > 0 && (
-              <div>
-                <span className="text-sm">Metacritic</span>
+              <div className="rounded-md border py-1 px-2">
+                <div className="mb-2 border-b pb-1 text-sm">Metacritic</div>
                 <ReviewStars rating={movie.metacriticRating} />
+                <span className="text-xs">{movie.metacriticRating} / 5</span>
               </div>
             )}
           </div>
