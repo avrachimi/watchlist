@@ -14,7 +14,7 @@ export const movieRouter = createTRPCRouter({
       },
     });
   }),
-  getById: protectedProcedure
+  getById: publicProcedure // TODO: Change to private later
     .input(
       z.object({
         id: z.string(),
