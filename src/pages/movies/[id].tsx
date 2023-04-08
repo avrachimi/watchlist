@@ -54,19 +54,14 @@ const SingleMovie = () => {
           onSubmit={(e) => {
             e.preventDefault();
             const formData = new FormData(e.currentTarget);
-            const ratingValue =
-              formData.get("rating") !== null
-                ? parseFloat(formData.get("rating"))
-                : 0;
-            const reviewValue = formData.get("review")
-              ? formData.get("review")
-              : "";
+            const ratingValue = formData.get("rating");
+            const reviewValue = formData.get("review");
 
             console.log(ratingValue);
 
             mutate({
-              rating: ratingValue,
-              review: reviewValue,
+              rating: ratingValue ? parseFloat(ratingValue.toString()) : 0,
+              review: reviewValue ? reviewValue.toString() : "",
               movieId: movieId,
               userId: userId,
             });
@@ -74,6 +69,7 @@ const SingleMovie = () => {
         >
           <input
             className="w-full rounded-md"
+            id="rating"
             name="rating"
             type="number"
             min={0}
@@ -82,10 +78,15 @@ const SingleMovie = () => {
             step={0.25}
             required
           />
-          <textarea className="w-full rounded-md" name="review" />
-          {error?.data?.zodError?.fieldErrors.title && (
+          <textarea className="w-full rounded-md" id="review" name="review" />
+          {error?.data?.zodError?.fieldErrors.rating && (
             <span className="mb-8 text-red-500">
-              {error.data.zodError.fieldErrors.title}
+              {error.data.zodError.fieldErrors.rating}
+            </span>
+          )}
+          {error?.data?.zodError?.fieldErrors.review && (
+            <span className="mb-8 text-red-500">
+              {error.data.zodError.fieldErrors.review}
             </span>
           )}
           <button
