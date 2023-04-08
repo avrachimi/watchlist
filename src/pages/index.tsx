@@ -75,7 +75,7 @@ const Home = () => {
 
   if (!sessionData?.user) {
     return (
-      <div className="flex h-full w-full flex-col items-center justify-center bg-gray-900">
+      <div className="flex h-screen w-full flex-col items-center justify-center bg-gray-900">
         <button
           className="rounded-xl bg-white/10 px-10 py-3 font-semibold text-white no-underline transition hover:bg-white/20"
           onClick={() => void signIn()}
@@ -93,7 +93,7 @@ const Home = () => {
         <meta name="description" content="Movie and tv show recommendations" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="min-h-full bg-gray-900">
+      <main className="min-h-screen bg-gray-900">
         <Navbar />
         <Feed />
         <div className="flex items-center justify-center">
