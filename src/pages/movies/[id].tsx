@@ -38,7 +38,68 @@ const SingleMovie = () => {
     return sum / ratings.length;
   };
 
-  const Review = ({ movieId }: { movieId: string }) => {
+  const WriteReview = ({
+    movieId,
+    userId,
+  }: {
+    movieId: string;
+    userId: string;
+  }) => {
+    const { mutate, error } = api.rating.create.useMutation();
+    return (
+      <div className="rounded-lg border">
+        <div className="p-2 text-center">Write a review</div>
+        <form
+          className="flex flex-col items-center justify-center gap-2 p-2 text-black"
+          onSubmit={(e) => {
+            e.preventDefault();
+            const formData = new FormData(e.currentTarget);
+            const ratingValue =
+              formData.get("rating") !== null
+                ? parseFloat(formData.get("rating"))
+                : 0;
+            const reviewValue = formData.get("review")
+              ? formData.get("review")
+              : "";
+
+            console.log(ratingValue);
+
+            mutate({
+              rating: ratingValue,
+              review: reviewValue,
+              movieId: movieId,
+              userId: userId,
+            });
+          }}
+        >
+          <input
+            className="w-full rounded-md"
+            name="rating"
+            type="number"
+            min={0}
+            max={5}
+            defaultValue={0}
+            step={0.25}
+            required
+          />
+          <textarea className="w-full rounded-md" name="review" />
+          {error?.data?.zodError?.fieldErrors.title && (
+            <span className="mb-8 text-red-500">
+              {error.data.zodError.fieldErrors.title}
+            </span>
+          )}
+          <button
+            className="m-2 w-fit rounded-lg border bg-gray-600 px-2"
+            type="submit"
+          >
+            Post
+          </button>
+        </form>
+      </div>
+    );
+  };
+
+  const Reviews = ({ movieId }: { movieId: string }) => {
     const { data: ratings } = api.rating.getByMovieId.useQuery({
       movieId: movieId,
     });
@@ -58,7 +119,7 @@ const SingleMovie = () => {
           </div>
           <div className="m-2 mt-4 text-sm">{rating.review}</div>
           <div className="mx-2 text-sm text-gray-400">
-            {rating.createdAt.toDateString()}
+            {rating.createdAt.toLocaleString()}
           </div>
         </div>
       );
@@ -66,7 +127,8 @@ const SingleMovie = () => {
 
     return (
       <div className="w-[90%]">
-        <div className="mb-5 text-lg underline">Reviews</div>
+        <div className="mb-5 border-b text-lg">Reviews</div>
+        <WriteReview movieId={movie.id} userId={sessionData.user.id} />
         {reviewComponents}
       </div>
     );
@@ -121,12 +183,12 @@ const SingleMovie = () => {
             </span>
           </div>
           <div className="mt-8 flex w-full flex-col items-center justify-center">
-            <Review movieId={movie.id} />
+            <Reviews movieId={movie.id} />
           </div>
         </div>
         <div className="flex items-center justify-center">
           <button
-            className="my-5 rounded-lg border-2 border-slate-400 py-2 px-3 hover:bg-slate-700"
+            className="mt-5 rounded-lg border-2 border-slate-400 py-2 px-3 hover:bg-slate-700"
             onClick={() => signOut()}
           >
             Sign out
