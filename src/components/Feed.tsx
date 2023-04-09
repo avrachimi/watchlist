@@ -45,17 +45,9 @@ export const Feed = () => {
     return avg ? avg : 0.0;
   };
 
-  const getViewCount = (movie: movieType) => {
-    let views = 0;
-    movie.Watched.map((watched) => {
-      if (sessionData && watched.userId !== sessionData?.user.id) views++;
-    });
-    return views;
-  };
-
   return (
     <div className="">
-      <div className="m-1.5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="m-1.5 grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4">
         {data?.map((movie) => (
           <Link
             href={`/movies/${movie.id}`}
@@ -64,21 +56,18 @@ export const Feed = () => {
           >
             <img
               src={movie.imageUrl}
-              className="h-80 w-full justify-self-start border object-cover sm:h-60"
+              className="block h-auto max-h-60 w-full border-b object-cover"
             />
-            <div className="flex h-28 w-full flex-col items-center justify-between">
-              <div className="mt-2 text-center text-xl">{movie.title}</div>
-              <div className="w-[90%] py-1 text-center text-sm">
-                {movie.plot.length < maxPlotLength
-                  ? movie.plot
-                  : `${movie.plot.substring(0, maxPlotLength)}...`}
+            <div className="flex h-full w-full flex-col items-center justify-between">
+              <div className="mt-2 w-full text-center text-sm font-bold">
+                {movie.title}
               </div>
-              <div className="mt-1 grid w-full grid-cols-2 items-end px-1 pb-2">
-                <ReviewStars rating={getAvgRating(movie.Rating)} />
+              <div className="mt-3 flex w-full flex-col items-center justify-center px-1 pb-2">
+                <ReviewStars rating={Math.floor(movie.friendRating * 2) / 2} />
                 <div className="text-right text-sm">
-                  <div className="flex items-center justify-end">
+                  <div className="mt-1 flex items-center justify-end">
                     <AiTwotoneEye className="mx-1" />
-                    <span>{getViewCount(movie)} friends</span>
+                    <span>{movie.Watched.length}</span>
                   </div>
                 </div>
               </div>

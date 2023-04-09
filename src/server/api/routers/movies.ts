@@ -17,6 +17,9 @@ export const movieRouter = createTRPCRouter({
         },
         Rating: true,
       },
+      orderBy: {
+        friendRating: "desc",
+      },
     });
   }),
 
@@ -82,6 +85,35 @@ export const movieRouter = createTRPCRouter({
           imdbRating: imdbRating,
           imageUrl: input.Poster,
           type: input.Type,
+        },
+      });
+    }),
+
+  updateRatings: protectedProcedure
+    .input(
+      z.object({
+        movieId: z.string(),
+        reviews: z.array(
+          z.object({
+            rating: z.number(),
+          })
+        ),
+      })
+    )
+    .mutation(({ ctx, input }) => {
+      let sum = 0;
+      input.reviews.map((review) => {
+        sum += review.rating;
+      });
+      const avg = sum / input.reviews.length;
+      console.log(avg);
+
+      return ctx.prisma.movie.update({
+        where: {
+          id: input.movieId,
+        },
+        data: {
+          friendRating: avg,
         },
       });
     }),

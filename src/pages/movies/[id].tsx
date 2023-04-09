@@ -76,6 +76,8 @@ const SingleMovie = () => {
       error: errorRating,
       data: mutatedRating,
     } = api.rating.create.useMutation();
+    const { mutate: mutateMovieRatings, error: errorMovieRatings } =
+      api.movie.updateRatings.useMutation();
     const [rating, setRating] = useState(0.0);
     const [review, setReview] = useState("");
 
@@ -101,8 +103,11 @@ const SingleMovie = () => {
               movieId: movieId,
               userId: userId,
             });
-            if (mutatedRating)
+
+            mutateMovieRatings({ movieId: movieId, reviews: reviews });
+            if (mutatedRating) {
               setReviews((prevReviews) => [...prevReviews, mutatedRating]);
+            }
           }}
         >
           <div className="flex w-full flex-col">
@@ -251,12 +256,12 @@ const SingleMovie = () => {
       <main className="min-h-auto bg-gray-900">
         <Navbar />
         <div className="flex flex-col items-center justify-center">
-          <div className="my-2 text-3xl">{movie.title}</div>
+          <div className="my-2 px-2 text-center text-3xl">{movie.title}</div>
           <img
             src={movie.imageUrl}
             className="my-3 w-[65%] border object-contain"
           />
-          <ReviewStars rating={getAvgRating(movie.Rating)} />
+          <ReviewStars rating={Math.floor(movie.friendRating * 2) / 2} />
           <div className="mt-5 flex w-full items-center justify-around text-center">
             {movie.imdbRating > 0 && (
               <div className="rounded-md border py-1 px-2">
