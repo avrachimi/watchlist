@@ -191,7 +191,7 @@ const SingleMovie = () => {
       let rating =
         reviews.find((review) => {
           review.userId === sessionData.user.id;
-        })?.rating ?? 0.01;
+        })?.rating ?? 0.000001;
 
       if (!ratingDeletionLoading) {
         const currReviews: ratingType[] = [];
@@ -271,7 +271,7 @@ const SingleMovie = () => {
             src={movie.imageUrl}
             className="my-3 w-[65%] border object-contain"
           />
-          <ReviewStars rating={Math.floor(movie.friendRating * 2) / 2} />
+          <ReviewStars rating={movie.friendRating} />
           <div className="mt-5 flex w-full items-center justify-around text-center">
             {movie.imdbRating > 0 && (
               <div className="rounded-md border py-1 px-2">

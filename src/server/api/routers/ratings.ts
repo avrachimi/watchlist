@@ -30,7 +30,7 @@ export const ratingRouter = createTRPCRouter({
           user: true,
         },
         orderBy: {
-          rating: "desc",
+          updatedAt: "desc",
         },
       });
     }),

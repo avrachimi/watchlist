@@ -63,7 +63,7 @@ export const Feed = () => {
                 {movie.title}
               </div>
               <div className="mt-3 flex w-full flex-col items-center justify-center px-1 pb-2">
-                <ReviewStars rating={Math.floor(movie.friendRating * 2) / 2} />
+                <ReviewStars rating={movie.friendRating} />
                 <div className="text-right text-sm">
                   <div className="mt-1 flex items-center justify-end">
                     <AiTwotoneEye className="mx-1" />
