@@ -8,7 +8,7 @@ import { useRouter } from "next/router";
 import ReviewStars from "~/components/ReviewStars";
 import { NextResponse } from "next/server";
 import { useEffect, useState } from "react";
-import { placeholderProfilePic } from "../../../public/profile.jpg";
+import placeholderProfilePic from "../../../public/profile.jpg";
 
 const SingleMovie = () => {
   const [watchedBy, setWatchedBy] = useState([""]);
@@ -171,7 +171,7 @@ const SingleMovie = () => {
             <div className="mb-2 flex w-full items-center justify-between">
               <img
                 className="h-10 rounded-full"
-                src={rating.user.image ?? placeholderProfilePic}
+                src={rating.user.image ?? placeholderProfilePic.src}
                 alt="Profile Pic"
               />
               <div className="text-xl">{rating.rating} / 5</div>
