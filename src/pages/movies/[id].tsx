@@ -9,19 +9,30 @@ import { Movie } from "@prisma/client";
 import { useRouter } from "next/router";
 import ReviewStars from "~/components/ReviewStars";
 import { NextResponse } from "next/server";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const SingleMovie = () => {
   const [watchedBy, setWatchedBy] = useState([""]);
   const { data: sessionData } = useSession();
   const router = useRouter();
   let { id } = router.query;
-  const { mutate, error } = api.movie.markWatched.useMutation();
+  const { mutate: mutateWatched, error: errorWatched } =
+    api.watched.markWatched.useMutation();
 
-  if (typeof id !== "string" || !id) id = "";
+  const { data: watchedUsers } = api.watched.getWatchedUsersByMovieId.useQuery({
+    id: typeof id === "string" ? id : "",
+  });
+  useEffect(() => {
+    const watchedUserList: string[] = [];
+    watchedUsers?.map((watchedUser) => {
+      if (watchedUser.user.name) watchedUserList.push(watchedUser.user.name);
+    });
+    setWatchedBy(watchedUserList);
+    console.log(watchedUsers);
+  }, [watchedUsers]);
 
   const { data: movie, isLoading: moviesLoading } = api.movie.getById.useQuery({
-    id: id,
+    id: typeof id === "string" ? id : "",
   });
 
   if (moviesLoading) return <LoadingPage />;
@@ -42,7 +53,7 @@ const SingleMovie = () => {
   };
 
   const markWatched = () => {
-    mutate({ movieId: movie.id, userId: sessionData.user.id });
+    mutateWatched({ movieId: movie.id, userId: sessionData.user.id });
     setWatchedBy((prevVal) => [...prevVal, sessionData.user.name]);
   };
 
@@ -166,7 +177,7 @@ const SingleMovie = () => {
           <div className="mt-5 flex w-full items-center justify-around text-center">
             {movie.imdbRating > 0 && (
               <div className="rounded-md border py-1 px-2">
-                <div className="mb-2 border-b pb-1 text-sm">IMDB</div>
+                <div className="mb-2 border-b pb-1 text-sm">IMDb</div>
                 <ReviewStars rating={movie.imdbRating} />
                 <span className="text-xs">{movie.imdbRating} / 5</span>
               </div>
@@ -190,16 +201,18 @@ const SingleMovie = () => {
           <div className="my-2 flex w-full flex-col items-center justify-center text-center">
             <span className="text-lg underline">Watched By</span>
             <span>
-              {movie.Watched.map((watched) => (
-                <div className="text-sm">{watched.user.name}</div>
+              {watchedBy.map((userName) => (
+                <div className="text-sm">{userName}</div>
               ))}
             </span>
-            <button
-              className="mt-10 rounded-md border-2 bg-green-800 p-2 text-gray-200"
-              onClick={markWatched}
-            >
-              Mark as watched
-            </button>
+            {!watchedBy.includes(sessionData.user.name) && (
+              <button
+                className="mt-10 rounded-md border-2 bg-green-800 p-2 text-gray-200"
+                onClick={markWatched}
+              >
+                Mark as watched
+              </button>
+            )}
           </div>
           <div className="mt-8 flex w-full flex-col items-center justify-center">
             <Reviews movieId={movie.id} />

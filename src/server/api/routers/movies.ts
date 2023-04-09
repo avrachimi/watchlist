@@ -19,6 +19,7 @@ export const movieRouter = createTRPCRouter({
       },
     });
   }),
+
   getById: protectedProcedure
     .input(
       z.object({
@@ -37,21 +38,6 @@ export const movieRouter = createTRPCRouter({
             },
           },
           Rating: true,
-        },
-      });
-    }),
-  markWatched: protectedProcedure
-    .input(
-      z.object({
-        movieId: z.string(),
-        userId: z.string(),
-      })
-    )
-    .mutation(({ ctx, input }) => {
-      return ctx.prisma.watched.create({
-        data: {
-          movieId: input.movieId,
-          userId: input.userId,
         },
       });
     }),

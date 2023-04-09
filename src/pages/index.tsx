@@ -18,12 +18,6 @@ const Feed = () => {
 
   const maxPlotLength = 70;
 
-  interface Rating {
-    id: string;
-    rating: number;
-    review: string;
-  }
-
   const getAvgRating = (ratings: any) => {
     let sum = 0;
     for (let rating of ratings) {
