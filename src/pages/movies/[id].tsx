@@ -101,7 +101,10 @@ const SingleMovie = () => {
               imdbId: movie.imdbId,
               currRating: rating,
             });
-            console.log(mutatedRating);
+
+            if (!errorRating && !watchedBy.includes(sessionData.user.name))
+              markWatched();
+
             if (!errorRating && mutatedRating) {
               setReviews((prevReviews) => [...prevReviews, mutatedRating]);
               console.log("Updated Reviews state");
