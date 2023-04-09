@@ -215,19 +215,19 @@ const SingleMovie = () => {
             </div>
           </div>
           <div className="m-2 mt-4 text-sm">{rating.review}</div>
-          <div className="mx-2 text-sm text-gray-400">
-            {rating.createdAt.toLocaleString()}
-          </div>
-          {sessionData.user.id === rating.userId && (
-            <div className="flex items-center justify-center">
+          <div className="flex items-center justify-between">
+            <div className="mx-2 text-sm text-gray-400">
+              {rating.createdAt.toLocaleString()}
+            </div>
+            {sessionData.user.id === rating.userId && (
               <button
-                className="my-1 mt-4 rounded-lg border-2 border-gray-400 bg-red-700 px-2 py-1 text-center text-lg"
+                className="my-1 rounded-lg border-2 border-gray-400 bg-red-700 px-2 py-1 text-center text-lg"
                 onClick={() => deleteRating(rating.id)}
               >
                 Delete
               </button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       );
     }
