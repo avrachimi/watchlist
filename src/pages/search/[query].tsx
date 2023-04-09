@@ -2,10 +2,13 @@ import Head from "next/head";
 import { signIn, signOut, useSession } from "next-auth/react";
 
 import { Navbar } from "~/components/navbar";
-import { Feed } from "~/components/Feed";
+import { useRouter } from "next/router";
+import { SearchFeed } from "~/components/SearchFeed";
 
-const Home = () => {
+const Search = () => {
   const { data: sessionData } = useSession();
+  const router = useRouter();
+  let { query } = router.query;
 
   if (!sessionData?.user) {
     return (
@@ -29,7 +32,7 @@ const Home = () => {
       </Head>
       <main className="min-h-screen bg-gray-900">
         <Navbar />
-        <Feed />
+        <SearchFeed query={typeof query === "string" ? query : ""} />
         <div className="flex items-center justify-center">
           <button
             className="mt-5 rounded-lg border-2 border-slate-400 py-2 px-3 hover:bg-slate-700"
@@ -43,4 +46,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default Search;

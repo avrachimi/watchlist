@@ -3,7 +3,7 @@ import { signIn, signOut, useSession } from "next-auth/react";
 
 import { Navbar } from "~/components/navbar";
 
-const Home = () => {
+const Account = () => {
   const { data: sessionData } = useSession();
 
   if (!sessionData?.user) {
@@ -42,4 +42,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default Account;

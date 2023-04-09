@@ -1,11 +1,14 @@
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 import { AiOutlineMenu } from "react-icons/ai";
 import logo from "~/logo.svg";
 
 export const Navbar = () => {
   const { data: sessionData } = useSession();
+  const [searchQuery, setSearchQuery] = useState("");
+
   return (
     <div className="flex items-center justify-between bg-slate-600 py-2 px-4">
       <div className="">
@@ -13,7 +16,7 @@ export const Navbar = () => {
           <Image src={logo} width={24} height={24} alt="Logo" />
         </Link>
       </div>
-      <form className="w-4/6">
+      <form className="w-4/6" action={`/search/${searchQuery}`}>
         <div className="relative">
           <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
             <svg
@@ -37,6 +40,8 @@ export const Navbar = () => {
             id="default-search"
             className="block w-full rounded-lg border border-slate-300 bg-slate-500 p-2.5 pl-10 text-sm text-slate-50"
             placeholder="Search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             required
           />
           <button

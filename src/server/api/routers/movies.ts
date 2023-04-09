@@ -41,4 +41,48 @@ export const movieRouter = createTRPCRouter({
         },
       });
     }),
+
+  create: protectedProcedure
+    .input(
+      z.object({
+        imdbID: z.string(),
+        Title: z.string(),
+        Plot: z.string(),
+        Ratings: z.array(
+          z.object({
+            Source: z.string(),
+            Value: z.string(),
+          })
+        ),
+        imdbRating: z.string(),
+        Poster: z.string(),
+        Type: z.string(),
+      })
+    )
+    .mutation(({ ctx, input }) => {
+      let imdbRating = 0;
+      let rottenRating = 0;
+      let metaRating = 0;
+
+      input.Ratings.map((rating) => {
+        if (rating.Source === "Rotten Tomatoes")
+          rottenRating = parseFloat(rating.Value.split("%")[0] ?? "0") / 20;
+        if (rating.Source === "Metacritic")
+          metaRating = parseFloat(rating.Value.split("/")[0] ?? "0") / 20;
+      });
+      if (input.imdbRating) imdbRating = imdbRating / 2;
+
+      return ctx.prisma.movie.create({
+        data: {
+          imdbId: input.imdbID,
+          title: input.Title,
+          plot: input.Plot,
+          rottenRating: rottenRating,
+          metacriticRating: metaRating,
+          imdbRating: imdbRating,
+          imageUrl: input.Poster,
+          type: input.Type,
+        },
+      });
+    }),
 });

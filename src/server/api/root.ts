@@ -1,4 +1,5 @@
 import { createTRPCRouter } from "~/server/api/trpc";
+import { externalRouter } from "./routers/external";
 import { movieRouter } from "./routers/movies";
 import { ratingRouter } from "./routers/ratings";
 import { watchedRouter } from "./routers/watched";
@@ -12,6 +13,7 @@ export const appRouter = createTRPCRouter({
   movie: movieRouter,
   rating: ratingRouter,
   watched: watchedRouter,
+  external: externalRouter,
 });
 
 // export type definition of API
