@@ -9,9 +9,17 @@ import ReviewStars from "~/components/ReviewStars";
 import { NextResponse } from "next/server";
 import { useEffect, useState } from "react";
 import placeholderProfilePic from "../../../public/profile.jpg";
+import { Prisma } from "@prisma/client";
+
+type ratingType = Prisma.RatingGetPayload<{
+  include: {
+    user: true;
+  };
+}>;
 
 const SingleMovie = () => {
   const [watchedBy, setWatchedBy] = useState([""]);
+  const [reviews, setReviews] = useState<ratingType[]>([]);
   const { data: sessionData } = useSession();
   const router = useRouter();
   let { id } = router.query;
@@ -63,7 +71,11 @@ const SingleMovie = () => {
     movieId: string;
     userId: string;
   }) => {
-    const { mutate, error } = api.rating.create.useMutation();
+    const {
+      mutate: mutateRating,
+      error: errorRating,
+      data: mutatedRating,
+    } = api.rating.create.useMutation();
     const [rating, setRating] = useState(0.0);
     const [review, setReview] = useState("");
 
@@ -82,15 +94,15 @@ const SingleMovie = () => {
           className="flex flex-col items-center justify-center gap-2 p-2"
           onSubmit={(e) => {
             e.preventDefault();
-            const formData = new FormData(e.currentTarget);
-            const reviewValue = formData.get("review");
 
-            mutate({
+            mutateRating({
               rating: rating,
-              review: reviewValue ? reviewValue.toString() : "",
+              review: review,
               movieId: movieId,
               userId: userId,
             });
+            if (mutatedRating)
+              setReviews((prevReviews) => [...prevReviews, mutatedRating]);
           }}
         >
           <div className="flex w-full flex-col">
@@ -134,14 +146,14 @@ const SingleMovie = () => {
               onChange={(e) => setReview(e.target.value)}
             />
           </div>
-          {error?.data?.zodError?.fieldErrors.rating && (
+          {errorRating?.data?.zodError?.fieldErrors.rating && (
             <span className="mb-8 text-red-500">
-              {error.data.zodError.fieldErrors.rating}
+              {errorRating.data.zodError.fieldErrors.rating}
             </span>
           )}
-          {error?.data?.zodError?.fieldErrors.review && (
+          {errorRating?.data?.zodError?.fieldErrors.review && (
             <span className="mb-8 text-red-500">
-              {error.data.zodError.fieldErrors.review}
+              {errorRating.data.zodError.fieldErrors.review}
             </span>
           )}
           <button
@@ -156,15 +168,34 @@ const SingleMovie = () => {
   };
 
   const Reviews = ({ movieId }: { movieId: string }) => {
-    const { data: ratings } = api.rating.getByMovieId.useQuery({
-      movieId: movieId,
-    });
+    const { data: ratings, isLoading: ratingsLoading } =
+      api.rating.getByMovieId.useQuery({
+        movieId: movieId,
+      });
+    const { mutate: deleteMutation, isLoading: ratingDeletionLoading } =
+      api.rating.delete.useMutation();
+
+    useEffect(() => {
+      if (ratings) setReviews(ratings);
+    }, [ratingsLoading]);
 
     if (!ratings) return <div>No ratings found</div>;
 
+    const deleteRating = (id: string) => {
+      deleteMutation({ id: id });
+
+      if (!ratingDeletionLoading) {
+        const currReviews: ratingType[] = [];
+        reviews.map((review) =>
+          review.id !== id ? currReviews.push(review) : null
+        );
+        setReviews(currReviews);
+      }
+    };
+
     const reviewComponents = [];
 
-    for (let rating of ratings) {
+    for (let rating of reviews) {
       reviewComponents.push(
         <div key={rating.id} className="my-5 rounded-md border p-3">
           <div className="flex flex-col items-center justify-center border-b pb-2">
@@ -187,6 +218,16 @@ const SingleMovie = () => {
           <div className="mx-2 text-sm text-gray-400">
             {rating.createdAt.toLocaleString()}
           </div>
+          {sessionData.user.id === rating.userId && (
+            <div className="flex items-center justify-center">
+              <button
+                className="my-1 mt-4 rounded-lg border-2 border-gray-400 bg-red-700 px-2 py-1 text-center text-lg"
+                onClick={() => deleteRating(rating.id)}
+              >
+                Delete
+              </button>
+            </div>
+          )}
         </div>
       );
     }
@@ -244,7 +285,9 @@ const SingleMovie = () => {
             <span className="text-lg underline">Watched By</span>
             <span>
               {watchedBy.map((userName) => (
-                <div className="text-sm">{userName}</div>
+                <div key={userName} className="text-sm">
+                  {userName}
+                </div>
               ))}
             </span>
             {!watchedBy.includes(sessionData.user.name) && (

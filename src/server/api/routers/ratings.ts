@@ -14,6 +14,7 @@ export const ratingRouter = createTRPCRouter({
       },
     });
   }),
+
   getByMovieId: protectedProcedure
     .input(
       z.object({
@@ -28,8 +29,31 @@ export const ratingRouter = createTRPCRouter({
         include: {
           user: true,
         },
+        orderBy: {
+          rating: "desc",
+        },
       });
     }),
+
+  getByMovieAndUserId: protectedProcedure
+    .input(
+      z.object({
+        movieId: z.string(),
+        userId: z.string(),
+      })
+    )
+    .query(({ ctx, input }) => {
+      return ctx.prisma.rating.findFirst({
+        where: {
+          movieId: input.movieId,
+          userId: input.userId,
+        },
+        include: {
+          user: true,
+        },
+      });
+    }),
+
   create: protectedProcedure
     .input(
       z.object({
@@ -39,13 +63,31 @@ export const ratingRouter = createTRPCRouter({
         movieId: z.string(),
       })
     )
-    .mutation(({ ctx, input }) => {
-      return ctx.prisma.rating.create({
+    .mutation(async ({ ctx, input }) => {
+      const createdRating = await ctx.prisma.rating.create({
         data: {
           rating: input.rating,
           review: input.review,
           userId: input.userId,
           movieId: input.movieId,
+        },
+        include: {
+          user: true,
+        },
+      });
+      return createdRating;
+    }),
+
+  delete: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      })
+    )
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.rating.delete({
+        where: {
+          id: input.id,
         },
       });
     }),
