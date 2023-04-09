@@ -7,14 +7,13 @@ import { LoadingPage } from "~/components/loading";
 import { useRouter } from "next/router";
 import { NextResponse } from "next/server";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 const SingleSearchMovie = () => {
   const [watchedBy, setWatchedBy] = useState([""]);
   const { data: sessionData } = useSession();
   const router = useRouter();
   let { id } = router.query;
-  const { mutate: mutateWatched, error: errorWatched } =
-    api.watched.markWatched.useMutation();
   const { data: movie, isLoading: movieLoading } =
     api.external.getDetailedMovie.useQuery({
       imdbId: typeof id === "string" ? id : "",
@@ -52,9 +51,10 @@ const SingleSearchMovie = () => {
   }
 
   const markWatched = async () => {
-    await mutateMovie(movie);
-    await mutateWatched({ movieId: movie.imdbID, userId: sessionData.user.id });
-    setWatchedBy((prevVal) => [...prevVal, sessionData.user.name]);
+    if (!movie) {
+      await mutateMovie(movie);
+      setWatchedBy((prevVal) => [...prevVal, sessionData.user.name]);
+    }
   };
 
   return (
@@ -74,7 +74,7 @@ const SingleSearchMovie = () => {
           />
           <div className="text-md my-10 px-4 text-center">{movie.Plot}</div>
           <div className="my-2 flex w-full flex-col items-center justify-center text-center">
-            {!watchedBy.includes(sessionData.user.name) && (
+            {!movie && (
               <button
                 className="mt-10 rounded-md border-2 bg-green-800 p-2 text-gray-200"
                 onClick={markWatched}
@@ -82,15 +82,19 @@ const SingleSearchMovie = () => {
                 Add to database
               </button>
             )}
+            {movie && (
+              <div className="w-[80%] rounded-md border-2 border-red-900 bg-red-800 bg-opacity-70 px-2">
+                Movie already added to database.
+                <div>
+                  Visit{" "}
+                  <Link href={`/`} className="underline">
+                    Home
+                  </Link>{" "}
+                  to find movies in our database.
+                </div>
+              </div>
+            )}
           </div>
-        </div>
-        <div className="flex items-center justify-center">
-          <button
-            className="mt-5 rounded-lg border-2 border-slate-400 py-2 px-3 hover:bg-slate-700"
-            onClick={() => signOut()}
-          >
-            Sign out
-          </button>
         </div>
       </main>
     </>

@@ -50,15 +50,6 @@ const SingleMovie = () => {
     return NextResponse.redirect("https://watch.avrachimi.com");
   }
 
-  const getAvgRating = (ratings: typeof movie.Rating) => {
-    let sum = 0;
-    for (let rating of ratings) {
-      sum += rating.rating;
-    }
-
-    return sum / ratings.length;
-  };
-
   const markWatched = () => {
     mutateWatched({ movieId: movie.id, userId: sessionData.user.id });
     setWatchedBy((prevVal) => [...prevVal, sessionData.user.name]);
