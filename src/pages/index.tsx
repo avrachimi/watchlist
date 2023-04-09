@@ -8,9 +8,22 @@ import { api } from "~/utils/api";
 import { Navbar } from "~/components/navbar";
 import { LoadingPage } from "~/components/loading";
 import ReviewStars from "~/components/ReviewStars";
+import { Prisma } from "@prisma/client";
+
+type movieType = Prisma.MovieGetPayload<{
+  include: {
+    Watched: {
+      include: {
+        user: true;
+      };
+    };
+    Rating: true;
+  };
+}>;
 
 const Feed = () => {
   const { data, isLoading: moviesLoading } = api.movie.getAll.useQuery();
+  const { data: sessionData } = useSession();
 
   if (moviesLoading) return <LoadingPage />;
 
@@ -25,6 +38,14 @@ const Feed = () => {
     }
     const avg = sum / ratings.length;
     return avg ? avg : 0.0;
+  };
+
+  const getViewCount = (movie: movieType) => {
+    let views = 0;
+    movie.Watched.map((watched) => {
+      if (sessionData && watched.userId !== sessionData?.user.id) views++;
+    });
+    return views;
   };
 
   return (
@@ -52,7 +73,7 @@ const Feed = () => {
                 <div className="text-right text-sm">
                   <div className="flex items-center justify-end">
                     <AiTwotoneEye className="mx-1" />
-                    <span>{movie.Watched.length} friends</span>
+                    <span>{getViewCount(movie)} friends</span>
                   </div>
                 </div>
               </div>
