@@ -5,6 +5,7 @@ import {
   publicProcedure,
   protectedProcedure,
 } from "~/server/api/trpc";
+import externalApi, { DetailedMovie } from "~/server/services/externalApi";
 
 export const movieRouter = createTRPCRouter({
   getAll: protectedProcedure.query(({ ctx }) => {
@@ -80,7 +81,7 @@ export const movieRouter = createTRPCRouter({
         if (rating.Source === "Metacritic")
           metaRating = parseFloat(rating.Value.split("/")[0] ?? "0") / 20;
       });
-      if (input.imdbRating) imdbRating = imdbRating / 2;
+      if (input.imdbRating) imdbRating = parseFloat(input.imdbRating) / 2;
 
       return ctx.prisma.movie.create({
         data: {
@@ -100,20 +101,42 @@ export const movieRouter = createTRPCRouter({
     .input(
       z.object({
         movieId: z.string(),
+        imdbId: z.string(),
         reviews: z.array(
           z.object({
             rating: z.number(),
           })
         ),
+        currRating: z.number(),
       })
     )
-    .mutation(({ ctx, input }) => {
+    .mutation(async ({ ctx, input }) => {
       let sum = 0;
       input.reviews.map((review) => {
         sum += review.rating;
       });
-      const avg = sum / input.reviews.length;
+      const avg =
+        Math.sign(input.currRating) >= 0
+          ? (sum + input.currRating) / (input.reviews.length + 1)
+          : (sum + input.currRating) / (input.reviews.length - 1);
       console.log(avg);
+
+      const { data } = await externalApi.get(
+        `/?apiKey=${process.env.OMDB_KEY}&i=${input.imdbId}`
+      );
+      const movie: DetailedMovie = data;
+
+      let imdbRating = 0;
+      let rottenRating = 0;
+      let metaRating = 0;
+
+      movie.Ratings.map((rating) => {
+        if (rating.Source === "Rotten Tomatoes")
+          rottenRating = parseFloat(rating.Value.split("%")[0] ?? "0") / 20;
+        if (rating.Source === "Metacritic")
+          metaRating = parseFloat(rating.Value.split("/")[0] ?? "0") / 20;
+      });
+      if (movie.imdbRating) imdbRating = parseFloat(movie.imdbRating) / 2;
 
       return ctx.prisma.movie.update({
         where: {
@@ -121,6 +144,9 @@ export const movieRouter = createTRPCRouter({
         },
         data: {
           friendRating: avg,
+          rottenRating: rottenRating,
+          metacriticRating: metaRating,
+          imdbRating: imdbRating,
         },
       });
     }),

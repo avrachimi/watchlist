@@ -5,24 +5,10 @@ import {
   publicProcedure,
   protectedProcedure,
 } from "~/server/api/trpc";
-import externalApi from "~/server/services/externalApi";
-
-interface Movie {
-  Title: string;
-  Poster: string;
-  imdbID: string;
-}
-
-interface DetailedMovie {
-  imdbID: string;
-  Title: string;
-  Poster: string;
-  Plot: string;
-  Ratings: [{ Source: string; Value: string }];
-  Metascore: string;
-  imdbRating: string;
-  Type: string;
-}
+import externalApi, {
+  Movie,
+  DetailedMovie,
+} from "~/server/services/externalApi";
 
 export const externalRouter = createTRPCRouter({
   getSearch: protectedProcedure
@@ -50,7 +36,6 @@ export const externalRouter = createTRPCRouter({
         `/?apiKey=${process.env.OMDB_KEY}&i=${input.imdbId}`
       );
       const movie: DetailedMovie = data;
-      console.log(movie);
       return movie;
     }),
 });

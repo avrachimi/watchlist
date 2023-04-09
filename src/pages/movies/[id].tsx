@@ -95,9 +95,16 @@ const SingleMovie = () => {
               userId: userId,
             });
 
-            mutateMovieRatings({ movieId: movieId, reviews: reviews });
-            if (mutatedRating) {
+            mutateMovieRatings({
+              movieId: movieId,
+              reviews: reviews,
+              imdbId: movie.imdbId,
+              currRating: rating,
+            });
+            console.log(mutatedRating);
+            if (!errorRating && mutatedRating) {
               setReviews((prevReviews) => [...prevReviews, mutatedRating]);
+              console.log("Updated Reviews state");
             }
           }}
         >
@@ -170,6 +177,8 @@ const SingleMovie = () => {
       });
     const { mutate: deleteMutation, isLoading: ratingDeletionLoading } =
       api.rating.delete.useMutation();
+    const { mutate: mutateMovieRatings, error: errorMovieRatings } =
+      api.movie.updateRatings.useMutation();
 
     useEffect(() => {
       if (ratings) setReviews(ratings);
@@ -179,6 +188,10 @@ const SingleMovie = () => {
 
     const deleteRating = (id: string) => {
       deleteMutation({ id: id });
+      let rating =
+        reviews.find((review) => {
+          review.userId === sessionData.user.id;
+        })?.rating ?? 0.01;
 
       if (!ratingDeletionLoading) {
         const currReviews: ratingType[] = [];
@@ -186,6 +199,12 @@ const SingleMovie = () => {
           review.id !== id ? currReviews.push(review) : null
         );
         setReviews(currReviews);
+        mutateMovieRatings({
+          movieId: movieId,
+          reviews: reviews,
+          imdbId: movie.imdbId,
+          currRating: -rating,
+        });
       }
     };
 
