@@ -4,12 +4,11 @@ import { signIn, signOut, useSession } from "next-auth/react";
 
 import { Navbar } from "~/components/navbar";
 import { LoadingPage } from "~/components/loading";
-import { InferGetStaticPropsType, GetStaticProps } from "next";
-import { Movie } from "@prisma/client";
 import { useRouter } from "next/router";
 import ReviewStars from "~/components/ReviewStars";
 import { NextResponse } from "next/server";
 import { useEffect, useState } from "react";
+import { placeholderProfilePic } from "../../../public/profile.jpg";
 
 const SingleMovie = () => {
   const [watchedBy, setWatchedBy] = useState([""]);
@@ -65,43 +64,76 @@ const SingleMovie = () => {
     userId: string;
   }) => {
     const { mutate, error } = api.rating.create.useMutation();
+    const [rating, setRating] = useState(0.0);
+    const [review, setReview] = useState("");
+
+    const incrementRating = () => {
+      if (rating < 5) setRating((prevRating) => (prevRating += 0.5));
+    };
+
+    const decrementRating = () => {
+      if (rating > 0) setRating((prevRating) => (prevRating -= 0.5));
+    };
+
     return (
       <div className="rounded-lg border">
-        <div className="p-2 text-center">Write a review</div>
+        <div className="p-2 text-center text-xl">Write a review</div>
         <form
           className="flex flex-col items-center justify-center gap-2 p-2"
           onSubmit={(e) => {
             e.preventDefault();
             const formData = new FormData(e.currentTarget);
-            const ratingValue = formData.get("rating");
             const reviewValue = formData.get("review");
 
-            console.log(ratingValue);
-
             mutate({
-              rating: ratingValue ? parseFloat(ratingValue.toString()) : 0,
+              rating: rating,
               review: reviewValue ? reviewValue.toString() : "",
               movieId: movieId,
               userId: userId,
             });
           }}
         >
-          <input
-            className="w-full rounded-md text-black"
-            id="rating"
-            name="rating"
-            type="number"
-            min={0}
-            max={5}
-            defaultValue={0}
-            step={0.25}
-            required
-          />
-          <textarea
-            className="w-full rounded-md text-black"
-            id="review"
-            name="review"
-          />
+          <div className="flex w-full flex-col">
+            <div className="my-1 flex items-center justify-center">
+              <button
+                type="button"
+                className="mx-2 rounded-lg border-2 px-4 py-1 text-center text-2xl"
+                onClick={decrementRating}
+              >
+                -
+              </button>
+              <input
+                className="w-28 rounded-md bg-gray-900 text-center text-6xl"
+                id="rating"
+                name="rating"
+                type="number"
+                min={0}
+                max={5}
+                value={rating}
+                step={0.25}
+                required
+                readOnly
+                disabled
+              />
+              <button
+                type="button"
+                className="mx-2 rounded-lg border-2 px-4 py-1 text-center text-2xl"
+                onClick={incrementRating}
+              >
+                +
+              </button>
+            </div>
+            <div className="mb-2 flex items-center justify-center">
+              <ReviewStars rating={rating} />
+            </div>
+            <textarea
+              className="w-full rounded-md text-black"
+              id="review"
+              name="review"
+              value={review}
+              onChange={(e) => setReview(e.target.value)}
+            />
+          </div>
           {error?.data?.zodError?.fieldErrors.rating && (
             <span className="mb-8 text-red-500">
               {error.data.zodError.fieldErrors.rating}
@@ -135,10 +167,20 @@ const SingleMovie = () => {
     for (let rating of ratings) {
       reviewComponents.push(
         <div key={rating.id} className="my-5 rounded-md border p-3">
-          <div className="flex items-center justify-between border-b pb-2">
-            <div className="text-md">{rating.user.name}</div>
-            <div>
-              <ReviewStars rating={rating.rating} />
+          <div className="flex flex-col items-center justify-center border-b pb-2">
+            <div className="mb-2 flex w-full items-center justify-between">
+              <img
+                className="h-10 rounded-full"
+                src={rating.user.image ?? placeholderProfilePic}
+                alt="Profile Pic"
+              />
+              <div className="text-xl">{rating.rating} / 5</div>
+            </div>
+            <div className="flex w-full items-center justify-between">
+              <div className="text-md">{rating.user.name}</div>
+              <div>
+                <ReviewStars rating={rating.rating} />
+              </div>
             </div>
           </div>
           <div className="m-2 mt-4 text-sm">{rating.review}</div>
