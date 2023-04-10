@@ -3,7 +3,7 @@ import { api } from "~/utils/api";
 import { signIn, signOut, useSession } from "next-auth/react";
 
 import { Navbar } from "~/components/navbar";
-import { LoadingPage } from "~/components/loading";
+import { LoadingPage, LoadingSpinner } from "~/components/loading";
 import { useRouter } from "next/router";
 import ReviewStars from "~/components/ReviewStars";
 import { NextResponse } from "next/server";
@@ -182,10 +182,18 @@ const SingleMovie = () => {
       api.rating.delete.useMutation();
     const { mutate: mutateMovieRatings, error: errorMovieRatings } =
       api.movie.updateRatings.useMutation();
+    const [reviewed, setReviewed] = useState(false);
 
     useEffect(() => {
       if (ratings) setReviews(ratings);
+      console.log(ratings);
+      ratings?.map((rating) => {
+        if (rating.userId === sessionData.user.id) setReviewed(true);
+      });
+      console.log(reviewed);
     }, [ratingsLoading]);
+
+    if (ratingsLoading) return <LoadingPage />;
 
     if (!ratings) return <div>No ratings found</div>;
 
@@ -193,7 +201,7 @@ const SingleMovie = () => {
       deleteMutation({ id: id });
       let rating =
         reviews.find((review) => {
-          review.userId === sessionData.user.id;
+          review.user.id === sessionData.user.id;
         })?.rating ?? 0.000001;
 
       if (!ratingDeletionLoading) {
@@ -253,7 +261,9 @@ const SingleMovie = () => {
     return (
       <div className="w-[90%]">
         <div className="mb-5 border-b text-lg">Reviews</div>
-        <WriteReview movieId={movie.id} userId={sessionData.user.id} />
+        {!reviewed && (
+          <WriteReview movieId={movie.id} userId={sessionData.user.id} />
+        )}
         {reviewComponents}
       </div>
     );
