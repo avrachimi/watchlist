@@ -316,9 +316,9 @@ const SingleMovie = () => {
           <div className="text-md my-10 px-4 text-center">{movie.plot}</div>
           <div className="my-2 flex w-full flex-col items-center justify-center text-center">
             <span className="text-lg underline">Watched By</span>
-            <span>
+            <span className="mt-2 grid grid-cols-2 gap-3">
               {watchedBy.map((userName) => (
-                <div key={userName} className="text-sm">
+                <div key={userName} className="rounded-md border px-2 text-sm">
                   {userName}
                 </div>
               ))}

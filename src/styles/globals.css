@@ -9,7 +9,7 @@ body {
   width: 100%;
   margin: 0;
   padding: 0;
-    @apply text-white overflow-x-hidden overscroll-y-contain
+    @apply text-white overflow-x-hidden
 }
 
 /* Remove arrows from number input */
