@@ -2,7 +2,7 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { AiOutlineMenu } from "react-icons/ai";
+import { AiOutlineClose, AiOutlineMenu } from "react-icons/ai";
 import logo from "~/logo.svg";
 
 interface Props {
@@ -12,6 +12,7 @@ interface Props {
 export const Navbar = ({ query = "" }: Props) => {
   const { data: sessionData } = useSession();
   const [searchQuery, setSearchQuery] = useState(query);
+  const [toggleMobileNavbar, setMobileNavbar] = useState(false);
 
   return (
     <div className="flex items-center justify-between bg-slate-600 py-2 px-4">
@@ -57,7 +58,40 @@ export const Navbar = ({ query = "" }: Props) => {
         </div>
       </form>
       <div className="">
-        <AiOutlineMenu size={22} className="cursor-pointer xl:hidden" />
+        {toggleMobileNavbar && (
+          <div className="absolute top-0 right-0 z-10 h-full w-[50%] bg-gray-600">
+            <div className="flex w-full flex-col items-center justify-center p-2">
+              <div className="flex w-full items-center justify-start p-2">
+                <AiOutlineClose
+                  size={25}
+                  className="cursor-pointer xl:hidden"
+                  onClick={() => setMobileNavbar((prev) => !prev)}
+                />
+              </div>
+              <div className="w-full text-right text-xl">
+                <ul className="mr-2 flex flex-col gap-2">
+                  <li>
+                    <Link href={`/`}>Home</Link>
+                  </li>
+                  <li>
+                    <Link href={`/`}>Watchlist</Link>
+                  </li>
+                  <li>
+                    <Link href={`/`}>Friends</Link>
+                  </li>
+                  <li>
+                    <Link href={`/profile`}>Profile</Link>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        )}
+        <AiOutlineMenu
+          size={22}
+          className="cursor-pointer xl:hidden"
+          onClick={() => setMobileNavbar((prev) => !prev)}
+        />
         <div className="hidden xl:block">
           <Link href={"/"} className="px-2">
             Home
