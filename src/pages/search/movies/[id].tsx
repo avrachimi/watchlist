@@ -10,28 +10,24 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 
 const SingleSearchMovie = () => {
-  const [watchedBy, setWatchedBy] = useState([""]);
   const { data: sessionData } = useSession();
   const router = useRouter();
   let { id } = router.query;
+  id = typeof id === "string" ? id : "";
   const { data: movie, isLoading: movieLoading } =
     api.external.getDetailedMovie.useQuery({
-      imdbId: typeof id === "string" ? id : "",
+      imdbId: id,
     });
+  const { data: dbMovie, isLoading: dbMovieLoading } =
+    api.movie.getByImdbId.useQuery({ imdbId: id });
   const { mutate: mutateMovie, error: errorMovie } =
     api.movie.create.useMutation();
+  const [isMovieInDB, setMovieInDB] = useState(false);
+  console.log(isMovieInDB);
 
-  const { data: watchedUsers } = api.watched.getWatchedUsersByMovieId.useQuery({
-    id: typeof id === "string" ? id : "",
-  });
   useEffect(() => {
-    const watchedUserList: string[] = [];
-    watchedUsers?.map((watchedUser) => {
-      if (watchedUser.user.name) watchedUserList.push(watchedUser.user.name);
-    });
-    setWatchedBy(watchedUserList);
-    console.log(watchedUsers);
-  }, [watchedUsers]);
+    setMovieInDB(dbMovie ? true : false);
+  }, [dbMovieLoading]);
 
   if (movieLoading) return <LoadingPage />;
 
@@ -51,11 +47,13 @@ const SingleSearchMovie = () => {
   }
 
   const markWatched = async () => {
-    if (!movie) {
+    if (!dbMovie) {
       await mutateMovie(movie);
-      setWatchedBy((prevVal) => [...prevVal, sessionData.user.name]);
+      setMovieInDB(true);
     }
   };
+
+  console.log(dbMovie);
 
   return (
     <>
@@ -74,7 +72,7 @@ const SingleSearchMovie = () => {
           />
           <div className="text-md my-10 px-4 text-center">{movie.Plot}</div>
           <div className="my-2 flex w-full flex-col items-center justify-center text-center">
-            {!movie && (
+            {!isMovieInDB && (
               <button
                 className="mt-10 rounded-md border-2 bg-green-800 p-2 text-gray-200"
                 onClick={markWatched}
@@ -82,8 +80,8 @@ const SingleSearchMovie = () => {
                 Add to database
               </button>
             )}
-            {movie && (
-              <div className="w-[80%] rounded-md border-2 border-red-900 bg-red-800 bg-opacity-70 px-2">
+            {isMovieInDB && (
+              <div className="mb-10 w-[80%] rounded-md border-2 border-red-900 bg-red-800 bg-opacity-70 px-2">
                 Movie already added to database.
                 <div>
                   Visit{" "}

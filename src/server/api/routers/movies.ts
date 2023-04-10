@@ -53,6 +53,28 @@ export const movieRouter = createTRPCRouter({
       });
     }),
 
+  getByImdbId: protectedProcedure
+    .input(
+      z.object({
+        imdbId: z.string(),
+      })
+    )
+    .query(({ ctx, input }) => {
+      return ctx.prisma.movie.findFirst({
+        where: {
+          imdbId: input.imdbId,
+        },
+        include: {
+          Watched: {
+            include: {
+              user: true,
+            },
+          },
+          Rating: true,
+        },
+      });
+    }),
+
   create: protectedProcedure
     .input(
       z.object({

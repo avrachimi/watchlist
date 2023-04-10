@@ -22,6 +22,8 @@ const Search = () => {
       </div>
     );
   }
+  if (typeof query !== "string")
+    return <div>Something went wrong. Try again</div>;
 
   return (
     <>
@@ -31,7 +33,7 @@ const Search = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="min-h-screen bg-gray-900">
-        <Navbar />
+        <Navbar query={query} />
         <SearchFeed query={typeof query === "string" ? query : ""} />
         <div className="flex items-center justify-center">
           <button

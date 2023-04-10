@@ -5,9 +5,13 @@ import { useState } from "react";
 import { AiOutlineMenu } from "react-icons/ai";
 import logo from "~/logo.svg";
 
-export const Navbar = () => {
+interface Props {
+  query?: string;
+}
+
+export const Navbar = ({ query = "" }: Props) => {
   const { data: sessionData } = useSession();
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(query);
 
   return (
     <div className="flex items-center justify-between bg-slate-600 py-2 px-4">

@@ -186,11 +186,9 @@ const SingleMovie = () => {
 
     useEffect(() => {
       if (ratings) setReviews(ratings);
-      console.log(ratings);
       ratings?.map((rating) => {
         if (rating.userId === sessionData.user.id) setReviewed(true);
       });
-      console.log(reviewed);
     }, [ratingsLoading]);
 
     if (ratingsLoading) return <LoadingPage />;
