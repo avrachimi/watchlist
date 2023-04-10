@@ -12,8 +12,16 @@ export const Feed = () => {
     api.watched.getWatchedMoviesbyUserId.useQuery({
       userId: sessionData?.user.id ?? "",
     });
-  const [includeWatched, setIncludeWatched] = useState(true);
-  const [isSeries, setIsSeries] = useState(true);
+  const [includeWatched, setIncludeWatched] = useState(
+    JSON.parse(
+      window.localStorage.getItem("includeWatched") ?? JSON.stringify(true)
+    ) ?? true
+  );
+  const [isSeries, setIsSeries] = useState(
+    JSON.parse(
+      window.localStorage.getItem("isSeries") ?? JSON.stringify(true)
+    ) ?? true
+  );
   const { data: allMovieData, isLoading } = api.movie.getAll.useQuery();
   const { data: series, isLoading: seriesLoading } =
     api.movie.getAllSeries.useQuery();
@@ -25,7 +33,22 @@ export const Feed = () => {
     console.log("triggered isSeries useEffect");
     setData(isSeries ? series : movies);
     console.log(data);
-  }, [isSeries, seriesLoading]);
+
+    window.localStorage.setItem("isSeries", isSeries.toString());
+  }, [isSeries, seriesLoading, moviesLoading]);
+
+  useEffect(() => {
+    window.localStorage.setItem("includeWatched", includeWatched.toString());
+    console.log(JSON.parse(window.localStorage.getItem("includeWatched")!));
+  }, [includeWatched]);
+
+  useEffect(() => {
+    setIncludeWatched(
+      JSON.parse(window.localStorage.getItem("includeWatched")!)
+    );
+
+    setIsSeries(JSON.parse(window.localStorage.getItem("isSeries")!));
+  }, []);
 
   if (isLoading) return <LoadingPage />;
 
@@ -45,16 +68,24 @@ export const Feed = () => {
     watchedMovieIds.push(watchedMovie.movieId);
   });
 
+  const toggleIncludeWatched = () => {
+    setIncludeWatched((prev) => !prev);
+  };
+
+  const toggleType = () => {
+    setIsSeries((prev) => !prev);
+  };
+
   return (
-    <div className="flex w-full flex-col items-center justify-center">
-      <div className="mt-2 flex w-full justify-between px-3">
+    <div className="flex w-full flex-col justify-center sm:px-5 2xl:px-20">
+      <div className="mt-2 flex w-full items-center justify-between px-5 lg:justify-start lg:gap-8">
         <label className="relative inline-flex cursor-pointer items-center">
           <input
             checked={isSeries}
             type="checkbox"
             value=""
             className="peer sr-only"
-            onChange={() => setIsSeries((prev) => !prev)}
+            onChange={() => toggleType()}
           />
           <div className="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-blue-800"></div>
           <span className="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300">
@@ -67,7 +98,7 @@ export const Feed = () => {
             type="checkbox"
             value=""
             className="peer sr-only"
-            onChange={() => setIncludeWatched((prev) => !prev)}
+            onChange={() => toggleIncludeWatched()}
           />
           <div className="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-blue-800"></div>
           <span className="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300">
@@ -75,10 +106,39 @@ export const Feed = () => {
           </span>
         </label>
       </div>
-      <div className="m-1.5 grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4">
-        {!includeWatched &&
-          data?.map((movie) =>
-            !watchedMovieIds.includes(movie.id) ? (
+      <div className="flex w-full justify-center">
+        <div className="my-2 mx-3 grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8">
+          {!includeWatched &&
+            data?.map((movie) =>
+              !watchedMovieIds.includes(movie.id) ? (
+                <Link
+                  href={`/movies/${movie.id}`}
+                  key={movie.id}
+                  className="m-2 flex flex-col justify-between overflow-hidden rounded-lg border-2 border-slate-200"
+                >
+                  <img
+                    src={movie.imageUrl}
+                    className="block h-60 w-full border-b object-cover"
+                  />
+                  <div className="flex h-full w-full flex-col items-center justify-between">
+                    <div className="mt-2 w-full text-center text-sm font-bold">
+                      {movie.title}
+                    </div>
+                    <div className="mt-3 flex w-full flex-col items-center justify-center px-1 pb-2">
+                      <ReviewStars rating={movie.friendRating} />
+                      <div className="text-right text-sm">
+                        <div className="mt-1 flex items-center justify-end">
+                          <AiTwotoneEye className="mx-1" />
+                          <span>{movie.Watched.length}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ) : null
+            )}
+          {includeWatched &&
+            data?.map((movie) => (
               <Link
                 href={`/movies/${movie.id}`}
                 key={movie.id}
@@ -89,7 +149,7 @@ export const Feed = () => {
                   className="block h-60 w-full border-b object-cover"
                 />
                 <div className="flex h-fit w-full flex-col items-center justify-between">
-                  <div className="mt-2 w-full text-center text-sm font-bold">
+                  <div className="mx-1 mt-2 w-fit text-center text-sm font-bold">
                     {movie.title}
                   </div>
                   <div className="mt-3 flex w-full flex-col items-center justify-center px-1 pb-2">
@@ -103,35 +163,8 @@ export const Feed = () => {
                   </div>
                 </div>
               </Link>
-            ) : null
-          )}
-        {includeWatched &&
-          data?.map((movie) => (
-            <Link
-              href={`/movies/${movie.id}`}
-              key={movie.id}
-              className="m-2 flex flex-col items-center justify-between overflow-hidden rounded-lg border-2 border-slate-200"
-            >
-              <img
-                src={movie.imageUrl}
-                className="block h-60 w-full border-b object-cover"
-              />
-              <div className="flex h-fit w-full flex-col items-center justify-between">
-                <div className="mt-2 w-full text-center text-sm font-bold">
-                  {movie.title}
-                </div>
-                <div className="mt-3 flex w-full flex-col items-center justify-center px-1 pb-2">
-                  <ReviewStars rating={movie.friendRating} />
-                  <div className="text-right text-sm">
-                    <div className="mt-1 flex items-center justify-end">
-                      <AiTwotoneEye className="mx-1" />
-                      <span>{movie.Watched.length}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </Link>
-          ))}
+            ))}
+        </div>
       </div>
     </div>
   );

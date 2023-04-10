@@ -27,7 +27,7 @@ const Home = () => {
         <meta name="description" content="Movie and tv show recommendations" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="min-h-screen bg-gray-900">
+      <main className="min-w-screen min-h-screen bg-gray-900">
         <Navbar />
         <Feed />
         <div className="flex items-center justify-center">

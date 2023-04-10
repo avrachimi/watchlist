@@ -17,6 +17,11 @@ export interface DetailedMovie {
   Type: string;
 }
 
+export const poster = () =>
+  axios.create({
+    baseURL: "http://img.omdbapi.com",
+  });
+
 export default axios.create({
   baseURL: "http://www.omdbapi.com",
 });

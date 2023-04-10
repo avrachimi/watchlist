@@ -35,6 +35,7 @@ export const externalRouter = createTRPCRouter({
       const { data } = await externalApi.get(
         `/?apiKey=${process.env.OMDB_KEY}&i=${input.imdbId}`
       );
+
       const movie: DetailedMovie = data;
       return movie;
     }),
