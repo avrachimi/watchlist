@@ -1,25 +1,23 @@
-import { Prisma } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { AiTwotoneEye } from "react-icons/ai";
 import { api } from "~/utils/api";
 import { LoadingPage } from "./loading";
 import ReviewStars from "./ReviewStars";
 
-type movieType = Prisma.MovieGetPayload<{
-  include: {
-    Watched: {
-      include: {
-        user: true;
-      };
-    };
-    Rating: true;
-  };
-}>;
-
 export const Feed = () => {
-  const { data, isLoading: moviesLoading } = api.movie.getAll.useQuery();
   const { data: sessionData } = useSession();
+  const { data: watchedMovies, isLoading: watchedMoviesLoading } =
+    api.watched.getWatchedMoviesbyUserId.useQuery({
+      userId: sessionData?.user.id ?? "",
+    });
+  const [includeWatched, setIncludeWatched] = useState(false);
+  const { data, isLoading: moviesLoading } = api.movie.getAll.useQuery();
+
+  useEffect(() => {
+    console.log("triggered includeWatched useEffect");
+  }, [includeWatched]);
 
   if (moviesLoading) return <LoadingPage />;
 
@@ -34,46 +32,87 @@ export const Feed = () => {
       </div>
     );
 
-  const maxPlotLength = 70;
+  const watchedMovieIds: string[] = [];
+  watchedMovies?.map((watchedMovie) => {
+    watchedMovieIds.push(watchedMovie.movieId);
+  });
 
-  const getAvgRating = (ratings: any) => {
-    let sum = 0;
-    for (let rating of ratings) {
-      sum += rating.rating;
-    }
-    const avg = sum / ratings.length;
-    return avg ? avg : 0.0;
+  const toggleOption = () => {
+    setIncludeWatched((prev) => !prev);
+    console.log(includeWatched);
   };
 
   return (
-    <div className="">
+    <div className="flex w-full flex-col items-center justify-center">
+      <div className="mt-2">
+        <label
+          className="relative inline-flex cursor-pointer items-center"
+          onClick={() => toggleOption()}
+        >
+          <input type="checkbox" value="" className="peer sr-only" />
+          <div className="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-blue-800"></div>
+          <span className="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300">
+            Include your watched movies?
+          </span>
+        </label>
+      </div>
       <div className="m-1.5 grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4">
-        {data?.map((movie) => (
-          <Link
-            href={`/movies/${movie.id}`}
-            key={movie.id}
-            className="m-2 flex flex-col items-center justify-between overflow-hidden rounded-lg border-2 border-slate-200"
-          >
-            <img
-              src={movie.imageUrl}
-              className="block h-60 w-full border-b object-cover"
-            />
-            <div className="flex h-fit w-full flex-col items-center justify-between">
-              <div className="mt-2 w-full text-center text-sm font-bold">
-                {movie.title}
-              </div>
-              <div className="mt-3 flex w-full flex-col items-center justify-center px-1 pb-2">
-                <ReviewStars rating={movie.friendRating} />
-                <div className="text-right text-sm">
-                  <div className="mt-1 flex items-center justify-end">
-                    <AiTwotoneEye className="mx-1" />
-                    <span>{movie.Watched.length}</span>
+        {!includeWatched &&
+          data?.map((movie) =>
+            !watchedMovieIds.includes(movie.id) ? (
+              <Link
+                href={`/movies/${movie.id}`}
+                key={movie.id}
+                className="m-2 flex flex-col items-center justify-between overflow-hidden rounded-lg border-2 border-slate-200"
+              >
+                <img
+                  src={movie.imageUrl}
+                  className="block h-60 w-full border-b object-cover"
+                />
+                <div className="flex h-fit w-full flex-col items-center justify-between">
+                  <div className="mt-2 w-full text-center text-sm font-bold">
+                    {movie.title}
+                  </div>
+                  <div className="mt-3 flex w-full flex-col items-center justify-center px-1 pb-2">
+                    <ReviewStars rating={movie.friendRating} />
+                    <div className="text-right text-sm">
+                      <div className="mt-1 flex items-center justify-end">
+                        <AiTwotoneEye className="mx-1" />
+                        <span>{movie.Watched.length}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ) : null
+          )}
+        {includeWatched &&
+          data?.map((movie) => (
+            <Link
+              href={`/movies/${movie.id}`}
+              key={movie.id}
+              className="m-2 flex flex-col items-center justify-between overflow-hidden rounded-lg border-2 border-slate-200"
+            >
+              <img
+                src={movie.imageUrl}
+                className="block h-60 w-full border-b object-cover"
+              />
+              <div className="flex h-fit w-full flex-col items-center justify-between">
+                <div className="mt-2 w-full text-center text-sm font-bold">
+                  {movie.title}
+                </div>
+                <div className="mt-3 flex w-full flex-col items-center justify-center px-1 pb-2">
+                  <ReviewStars rating={movie.friendRating} />
+                  <div className="text-right text-sm">
+                    <div className="mt-1 flex items-center justify-end">
+                      <AiTwotoneEye className="mx-1" />
+                      <span>{movie.Watched.length}</span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </Link>
-        ))}
+            </Link>
+          ))}
       </div>
     </div>
   );

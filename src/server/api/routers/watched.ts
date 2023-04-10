@@ -24,6 +24,23 @@ export const watchedRouter = createTRPCRouter({
       });
     }),
 
+  getWatchedMoviesbyUserId: protectedProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+      })
+    )
+    .query(({ ctx, input }) => {
+      return ctx.prisma.watched.findMany({
+        where: {
+          userId: input.userId,
+        },
+        include: {
+          movie: true,
+        },
+      });
+    }),
+
   markWatched: protectedProcedure
     .input(
       z.object({
