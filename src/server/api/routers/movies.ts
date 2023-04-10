@@ -31,6 +31,58 @@ export const movieRouter = createTRPCRouter({
     });
   }),
 
+  getAllMovies: protectedProcedure.query(({ ctx }) => {
+    return ctx.prisma.movie.findMany({
+      where: {
+        type: "movie",
+      },
+      include: {
+        Watched: {
+          include: {
+            user: true,
+          },
+        },
+        Rating: true,
+      },
+      orderBy: [
+        {
+          friendRating: "desc",
+        },
+        {
+          Watched: {
+            _count: "desc",
+          },
+        },
+      ],
+    });
+  }),
+
+  getAllSeries: protectedProcedure.query(({ ctx }) => {
+    return ctx.prisma.movie.findMany({
+      where: {
+        type: "series",
+      },
+      include: {
+        Watched: {
+          include: {
+            user: true,
+          },
+        },
+        Rating: true,
+      },
+      orderBy: [
+        {
+          friendRating: "desc",
+        },
+        {
+          Watched: {
+            _count: "desc",
+          },
+        },
+      ],
+    });
+  }),
+
   getById: protectedProcedure
     .input(
       z.object({
