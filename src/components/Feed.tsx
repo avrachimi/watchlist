@@ -12,12 +12,12 @@ export const Feed = () => {
     api.watched.getWatchedMoviesbyUserId.useQuery({
       userId: sessionData?.user.id ?? "",
     });
-  const [includeWatched, setIncludeWatched] = useState(
+  const [includeWatched, setIncludeWatched] = useState<boolean>(
     JSON.parse(
       window.localStorage.getItem("includeWatched") ?? JSON.stringify(true)
     ) ?? true
   );
-  const [isSeries, setIsSeries] = useState(
+  const [isSeries, setIsSeries] = useState<boolean>(
     JSON.parse(
       window.localStorage.getItem("isSeries") ?? JSON.stringify(true)
     ) ?? true
