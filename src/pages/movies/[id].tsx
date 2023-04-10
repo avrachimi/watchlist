@@ -283,7 +283,7 @@ const SingleMovie = () => {
       </Head>
       <main className="min-h-auto bg-gray-900">
         <Navbar />
-        <div className="flex flex-col items-center justify-center">
+        <div className="my-5 flex flex-col items-center justify-center">
           <div className="my-2 px-2 text-center text-3xl">{movie.title}</div>
           <img
             src={movie.imageUrl}
@@ -338,7 +338,7 @@ const SingleMovie = () => {
         </div>
         <div className="flex items-center justify-center">
           <button
-            className="mt-5 rounded-lg border-2 border-slate-400 py-2 px-3 hover:bg-slate-700"
+            className="my-5 rounded-lg border-2 border-slate-400 py-2 px-3 hover:bg-slate-700"
             onClick={() => signOut()}
           >
             Sign out

@@ -66,7 +66,7 @@ const Search = () => {
       </Head>
       <main className="min-h-screen bg-gray-900">
         <Navbar />
-        <div className="mx-4 flex flex-col items-center justify-center border-b pb-2">
+        <div className="mx-4 flex flex-col items-center justify-center pb-2">
           <div className="m-2 mt-5 flex w-[50%] items-center justify-center">
             <img
               className="rounded-full border-4 border-gray-400"
@@ -75,7 +75,7 @@ const Search = () => {
             />
           </div>
           <div className="text-2xl">{user.name}</div>
-          <div className="mt-2 flex w-full items-center justify-around text-xs">
+          <div className="mt-2 flex w-[55%] items-center justify-around text-xs">
             <div className="flex w-full justify-center border-r">
               {moviesWatchedCount} movies
             </div>
@@ -99,7 +99,7 @@ const Search = () => {
                     className="block h-60 w-full border-b object-cover"
                   />
                   <div className="flex h-fit w-full flex-col items-center justify-between">
-                    <div className="my-2 text-center text-xl">
+                    <div className="my-2 text-center text-lg font-bold">
                       {watched.movie.title}
                     </div>
                     <div className="mt-1 mb-2">
@@ -129,7 +129,7 @@ const Search = () => {
                     className="block h-60 w-full border-b object-cover"
                   />
                   <div className="flex h-fit w-full flex-col items-center justify-between">
-                    <div className="my-2 text-center text-xl">
+                    <div className="my-2 text-center text-lg font-bold">
                       {watched.movie.title}
                     </div>
                     <div className="mt-1 mb-2">

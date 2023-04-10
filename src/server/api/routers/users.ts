@@ -5,7 +5,6 @@ import {
   publicProcedure,
   protectedProcedure,
 } from "~/server/api/trpc";
-import externalApi, { DetailedMovie } from "~/server/services/externalApi";
 
 export const userRouter = createTRPCRouter({
   getById: protectedProcedure
@@ -23,14 +22,14 @@ export const userRouter = createTRPCRouter({
           Watched: {
             include: {
               user: true,
-              movie: {
-                include: {
-                  Rating: true,
-                },
-              },
+              movie: true,
             },
           },
-          Rating: true,
+          Rating: {
+            orderBy: {
+              rating: "desc",
+            },
+          },
         },
       });
     }),

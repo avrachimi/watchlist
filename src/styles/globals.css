@@ -4,7 +4,7 @@
 
 
 body {
-    @apply text-white overflow-x-hidden overscroll-y-contain
+    @apply text-white overflow-x-hidden overscroll-y-contain overflow-y-scroll
 }
 
 /* Remove arrows from number input */
