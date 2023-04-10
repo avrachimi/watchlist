@@ -24,12 +24,13 @@ type ratingType = Prisma.RatingGetPayload<{
 
 const SingleMovie = () => {
   const [watchedBy, setWatchedBy] = useState([""]);
-  const [reviews, setReviews] = useState<ratingType[]>([]);
   const { data: sessionData } = useSession();
   const router = useRouter();
   let { id } = router.query;
   const { mutate: mutateWatched, error: errorWatched } =
     api.watched.markWatched.useMutation();
+  const [reviews, setReviews] = useState<ratingType[]>([]);
+  const [reviewed, setReviewed] = useState(false);
 
   const { data: watchedUsers } = api.watched.getWatchedUsersByMovieId.useQuery({
     id: typeof id === "string" ? id : "",
@@ -110,10 +111,19 @@ const SingleMovie = () => {
             if (!errorRating && !watchedBy.includes(sessionData.user.name))
               markWatched();
 
-            if (!errorRating && mutatedRating) {
-              setReviews((prevReviews) => [...prevReviews, mutatedRating]);
-              console.log("Updated Reviews state");
-            }
+            const newReview: ratingType = {
+              id: "N/A",
+              createdAt: new Date(),
+              updatedAt: new Date(),
+              rating: rating,
+              review: review,
+              movieId: movieId,
+              userId: userId,
+              user: { ...sessionData.user, emailVerified: new Date() },
+            };
+            setReviews([...reviews, newReview]);
+            setReviewed(true);
+            console.log(reviews);
           }}
         >
           <div className="flex w-full flex-col">
@@ -187,14 +197,13 @@ const SingleMovie = () => {
       api.rating.delete.useMutation();
     const { mutate: mutateMovieRatings, error: errorMovieRatings } =
       api.movie.updateRatings.useMutation();
-    const [reviewed, setReviewed] = useState(false);
 
     useEffect(() => {
       if (ratings) setReviews(ratings);
       ratings?.map((rating) => {
         if (rating.userId === sessionData.user.id) setReviewed(true);
       });
-    }, [ratingsLoading]);
+    }, [reviewed, ratingsLoading]);
 
     if (ratingsLoading) return <LoadingPage />;
 
@@ -219,41 +228,48 @@ const SingleMovie = () => {
           imdbId: movie.imdbId,
           currRating: -rating,
         });
+        setReviewed(false);
       }
     };
 
     const reviewComponents = [];
 
-    for (let rating of reviews) {
+    for (let review of reviews) {
       reviewComponents.push(
-        <div key={rating.id} className="my-5 rounded-md border p-3">
+        <div key={review.id} className="my-5 rounded-md border p-3">
           <div className="flex flex-col items-center justify-center border-b pb-2">
             <div className="mb-2 flex w-full items-center justify-between">
               <img
                 className="h-10 rounded-full"
-                src={rating.user.image ?? placeholderProfilePic.src}
+                src={review.user.image ?? placeholderProfilePic.src}
                 alt="Profile Pic"
               />
-              <div className="text-xl">{rating.rating} / 5</div>
+              <div className="text-xl">{review.rating} / 5</div>
             </div>
             <div className="flex w-full items-center justify-between">
-              <Link href={`/profile/${rating.userId}`}>
-                <div className="text-md">{rating.user.name}</div>
+              <Link
+                href={
+                  review.userId === sessionData.user.id
+                    ? `/profile`
+                    : `/profile/${review.userId}`
+                }
+              >
+                <div className="text-md">{review.user.name}</div>
               </Link>
               <div>
-                <ReviewStars rating={rating.rating} />
+                <ReviewStars rating={review.rating} />
               </div>
             </div>
           </div>
-          <div className="m-2 mt-4 text-sm">{rating.review}</div>
+          <div className="m-2 mt-4 text-sm">{review.review}</div>
           <div className="flex items-center justify-between">
             <div className="mx-2 text-sm text-gray-400">
-              {dayjs(rating.updatedAt).fromNow()}
+              {dayjs(review.updatedAt).fromNow()}
             </div>
-            {sessionData.user.id === rating.userId && (
+            {sessionData.user.id === review.userId && (
               <button
                 className="my-1 rounded-lg border-2 border-gray-400 bg-red-700 px-2 py-1 text-center text-lg"
-                onClick={() => deleteRating(rating.id)}
+                onClick={() => deleteRating(review.id)}
               >
                 Delete
               </button>

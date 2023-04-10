@@ -13,7 +13,7 @@ import ReviewStars from "~/components/ReviewStars";
 
 dayjs.extend(relativeTime);
 
-const Search = () => {
+const Profile = () => {
   const { data: sessionData } = useSession();
   const router = useRouter();
   let { id } = router.query;
@@ -157,4 +157,4 @@ const Search = () => {
   );
 };
 
-export default Search;
+export default Profile;

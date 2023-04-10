@@ -53,8 +53,6 @@ const SingleSearchMovie = () => {
     }
   };
 
-  console.log(dbMovie);
-
   return (
     <>
       <Head>
@@ -80,7 +78,7 @@ const SingleSearchMovie = () => {
                 Add to database
               </button>
             )}
-            {isMovieInDB && (
+            {isMovieInDB && !dbMovie && (
               <div className="mb-10 w-[80%] rounded-md border-2 border-red-900 bg-red-800 bg-opacity-70 px-2">
                 Movie already added to database.
                 <div>
@@ -89,6 +87,18 @@ const SingleSearchMovie = () => {
                     Home
                   </Link>{" "}
                   to find movies in our database.
+                </div>
+              </div>
+            )}
+            {isMovieInDB && dbMovie && (
+              <div className="mb-10 w-[80%] rounded-md border-2 border-red-900 bg-red-800 bg-opacity-70 px-2">
+                Movie already added to database.
+                <div>
+                  Click{" "}
+                  <Link href={`/movies/${dbMovie.id}`} className="underline">
+                    here
+                  </Link>{" "}
+                  to visit movie page.
                 </div>
               </div>
             )}
