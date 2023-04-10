@@ -9,6 +9,7 @@ import { LoadingPage } from "~/components/loading";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import Link from "next/link";
+import ReviewStars from "~/components/ReviewStars";
 
 dayjs.extend(relativeTime);
 
@@ -45,6 +46,16 @@ const Search = () => {
   let seriesWatchedCount = user.Watched.filter(
     (watched) => watched.userId === user.id && watched.movie.type === "series"
   ).length;
+
+  const getUserRating = (movieId: string) => {
+    let result = 0;
+
+    user.Rating.map((rating) => {
+      if (rating.userId === user.id && rating.movieId === movieId)
+        result = rating.rating;
+    });
+    return result;
+  };
 
   return (
     <>
@@ -85,11 +96,17 @@ const Search = () => {
                 >
                   <img
                     src={watched.movie.imageUrl}
-                    className="block h-auto max-h-60 w-full border-b object-cover"
+                    className="block h-60 w-full border-b object-cover"
                   />
-                  <div className="flex h-full w-full flex-col items-center justify-center">
+                  <div className="flex h-fit w-full flex-col items-center justify-between">
                     <div className="my-2 text-center text-xl">
                       {watched.movie.title}
+                    </div>
+                    <div className="mt-1 mb-2">
+                      <span className="mb-1 flex justify-center text-xs">
+                        This user's rating
+                      </span>
+                      <ReviewStars rating={getUserRating(watched.movieId)} />
                     </div>
                   </div>
                 </Link>
@@ -100,7 +117,7 @@ const Search = () => {
         <div className="mx-4 mt-4 flex flex-col">
           <div className="mb-2 border-b text-lg">Watched Shows</div>
           <div className="grid grid-cols-2">
-            {user.Watched.map((watched) =>
+            {user.Watched.map((watched, index) =>
               watched.movie.type === "series" ? (
                 <Link
                   href={`/movies/${watched.movie.id}`}
@@ -109,11 +126,17 @@ const Search = () => {
                 >
                   <img
                     src={watched.movie.imageUrl}
-                    className="block h-auto max-h-60 w-full border-b object-cover"
+                    className="block h-60 w-full border-b object-cover"
                   />
-                  <div className="flex h-full w-full flex-col items-center justify-center">
+                  <div className="flex h-fit w-full flex-col items-center justify-between">
                     <div className="my-2 text-center text-xl">
                       {watched.movie.title}
+                    </div>
+                    <div className="mt-1 mb-2">
+                      <span className="mb-1 flex justify-center text-xs">
+                        This user's rating
+                      </span>
+                      <ReviewStars rating={getUserRating(watched.movieId)} />
                     </div>
                   </div>
                 </Link>

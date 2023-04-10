@@ -56,9 +56,9 @@ export const Feed = () => {
           >
             <img
               src={movie.imageUrl}
-              className="block h-auto max-h-60 w-full border-b object-cover"
+              className="block h-60 w-full border-b object-cover"
             />
-            <div className="flex h-full w-full flex-col items-center justify-between">
+            <div className="flex h-fit w-full flex-col items-center justify-between">
               <div className="mt-2 w-full text-center text-sm font-bold">
                 {movie.title}
               </div>

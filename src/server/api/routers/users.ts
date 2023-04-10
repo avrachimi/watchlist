@@ -23,7 +23,11 @@ export const userRouter = createTRPCRouter({
           Watched: {
             include: {
               user: true,
-              movie: true,
+              movie: {
+                include: {
+                  Rating: true,
+                },
+              },
             },
           },
           Rating: true,
