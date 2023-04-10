@@ -10,6 +10,11 @@ import { NextResponse } from "next/server";
 import { useEffect, useState } from "react";
 import placeholderProfilePic from "../../../public/profile.jpg";
 import { Prisma } from "@prisma/client";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import Link from "next/link";
+
+dayjs.extend(relativeTime);
 
 type ratingType = Prisma.RatingGetPayload<{
   include: {
@@ -232,7 +237,9 @@ const SingleMovie = () => {
               <div className="text-xl">{rating.rating} / 5</div>
             </div>
             <div className="flex w-full items-center justify-between">
-              <div className="text-md">{rating.user.name}</div>
+              <Link href={`/profile/${rating.userId}`}>
+                <div className="text-md">{rating.user.name}</div>
+              </Link>
               <div>
                 <ReviewStars rating={rating.rating} />
               </div>
@@ -241,7 +248,7 @@ const SingleMovie = () => {
           <div className="m-2 mt-4 text-sm">{rating.review}</div>
           <div className="flex items-center justify-between">
             <div className="mx-2 text-sm text-gray-400">
-              {rating.createdAt.toLocaleString()}
+              {dayjs(rating.updatedAt).fromNow()}
             </div>
             {sessionData.user.id === rating.userId && (
               <button
