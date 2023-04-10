@@ -345,7 +345,7 @@ const SingleMovie = () => {
               <div className="font-bold">Released</div>
               <div>{movie.released?.toLocaleString().split(",")[0]}</div>
             </div>
-            {movie.runtime !== null && movie.runtime > 1 && (
+            {movie.runtime !== null && movie.runtime / 60 > 1 && (
               <div className="flex flex-col items-center">
                 <div className="font-bold">Duration</div>
                 <div>
