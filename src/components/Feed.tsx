@@ -19,13 +19,13 @@ export const Feed = () => {
     api.movie.getAllSeries.useQuery();
   const { data: movies, isLoading: moviesLoading } =
     api.movie.getAllMovies.useQuery();
-  const [data, setData] = useState(allMovieData);
+  const [data, setData] = useState<typeof allMovieData>(undefined);
 
   useEffect(() => {
     console.log("triggered isSeries useEffect");
     setData(isSeries ? series : movies);
     console.log(data);
-  }, [isSeries]);
+  }, [isSeries, seriesLoading]);
 
   if (isLoading) return <LoadingPage />;
 
