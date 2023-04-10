@@ -86,62 +86,66 @@ const Profile = () => {
         </div>
         <div className="mx-4 mt-4 flex flex-col">
           <div className="mb-2 border-b text-lg">Watched Movies</div>
-          <div className="grid grid-cols-2">
-            {user.Watched.map((watched) =>
-              watched.movie.type === "movie" ? (
-                <Link
-                  href={`/movies/${watched.movie.id}`}
-                  key={watched.movie.id}
-                  className="m-2 flex flex-col items-center justify-between overflow-hidden rounded-lg border-2 border-slate-200"
-                >
-                  <img
-                    src={watched.movie.imageUrl}
-                    className="block h-60 w-full border-b object-cover"
-                  />
-                  <div className="flex h-fit w-full flex-col items-center justify-between">
-                    <div className="my-2 text-center text-lg font-bold">
-                      {watched.movie.title}
+          <div className="w-auto overflow-x-auto">
+            <div className="grid h-fit w-auto grid-flow-col grid-rows-1">
+              {user.Watched.map((watched) =>
+                watched.movie.type === "movie" ? (
+                  <Link
+                    href={`/movies/${watched.movie.id}`}
+                    key={watched.movie.id}
+                    className="m-2 flex w-40 flex-col items-center justify-between overflow-hidden rounded-lg border-2 border-slate-200"
+                  >
+                    <img
+                      src={watched.movie.imageUrl}
+                      className="block h-60 w-full border-b object-cover"
+                    />
+                    <div className="flex h-fit w-full flex-col items-center justify-start">
+                      <div className="text-md mt-auto mb-2 text-center font-bold">
+                        {watched.movie.title}
+                      </div>
+                      <div className="mt-1 mb-2">
+                        <span className="mb-1 flex justify-center text-xs">
+                          This user's rating
+                        </span>
+                        <ReviewStars rating={getUserRating(watched.movieId)} />
+                      </div>
                     </div>
-                    <div className="mt-1 mb-2">
-                      <span className="mb-1 flex justify-center text-xs">
-                        This user's rating
-                      </span>
-                      <ReviewStars rating={getUserRating(watched.movieId)} />
-                    </div>
-                  </div>
-                </Link>
-              ) : null
-            )}
+                  </Link>
+                ) : null
+              )}
+            </div>
           </div>
         </div>
         <div className="mx-4 mt-4 flex flex-col">
           <div className="mb-2 border-b text-lg">Watched Shows</div>
-          <div className="grid grid-cols-2">
-            {user.Watched.map((watched, index) =>
-              watched.movie.type === "series" ? (
-                <Link
-                  href={`/movies/${watched.movie.id}`}
-                  key={watched.movie.id}
-                  className="m-2 flex flex-col items-center justify-between overflow-hidden rounded-lg border-2 border-slate-200"
-                >
-                  <img
-                    src={watched.movie.imageUrl}
-                    className="block h-60 w-full border-b object-cover"
-                  />
-                  <div className="flex h-fit w-full flex-col items-center justify-between">
-                    <div className="my-2 text-center text-lg font-bold">
-                      {watched.movie.title}
+          <div className="w-auto overflow-x-auto">
+            <div className="grid h-fit w-auto grid-flow-col grid-rows-1">
+              {user.Watched.map((watched, index) =>
+                watched.movie.type === "series" ? (
+                  <Link
+                    href={`/movies/${watched.movie.id}`}
+                    key={watched.movie.id}
+                    className="m-2 flex w-40 flex-col items-center justify-between overflow-hidden rounded-lg border-2 border-slate-200"
+                  >
+                    <img
+                      src={watched.movie.imageUrl}
+                      className="block h-60 w-full border-b object-cover"
+                    />
+                    <div className="flex h-fit w-full flex-col items-center justify-between">
+                      <div className="my-2 text-center text-lg font-bold">
+                        {watched.movie.title}
+                      </div>
+                      <div className="mt-1 mb-2">
+                        <span className="mb-1 flex justify-center text-xs">
+                          This user's rating
+                        </span>
+                        <ReviewStars rating={getUserRating(watched.movieId)} />
+                      </div>
                     </div>
-                    <div className="mt-1 mb-2">
-                      <span className="mb-1 flex justify-center text-xs">
-                        This user's rating
-                      </span>
-                      <ReviewStars rating={getUserRating(watched.movieId)} />
-                    </div>
-                  </div>
-                </Link>
-              ) : null
-            )}
+                  </Link>
+                ) : null
+              )}
+            </div>
           </div>
         </div>
         <div className="flex items-center justify-center">

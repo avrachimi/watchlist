@@ -27,6 +27,9 @@ export const movieRouter = createTRPCRouter({
             _count: "desc",
           },
         },
+        {
+          imdbRating: "desc",
+        },
       ],
     });
   }),
@@ -53,6 +56,9 @@ export const movieRouter = createTRPCRouter({
             _count: "desc",
           },
         },
+        {
+          imdbRating: "desc",
+        },
       ],
     });
   }),
@@ -78,6 +84,9 @@ export const movieRouter = createTRPCRouter({
           Watched: {
             _count: "desc",
           },
+        },
+        {
+          imdbRating: "desc",
         },
       ],
     });
