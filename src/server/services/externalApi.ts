@@ -15,6 +15,9 @@ export interface DetailedMovie {
   Metascore: string;
   imdbRating: string;
   Type: string;
+  Genre: string;
+  Released: string;
+  Runtime: string;
 }
 
 export const poster = () =>

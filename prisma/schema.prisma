@@ -78,6 +78,9 @@ model Movie {
     friendRating     Float       @default(0.0) @db.Float
     imageUrl         String      @db.VarChar(2000)
     type             String      @db.VarChar(50)
+    genre            String?
+    released         DateTime?
+    runtime          Int?
     Rating           Rating[]
     Watched          Watched[]
     Watchlist        Watchlist[]

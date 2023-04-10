@@ -35,6 +35,7 @@ const SingleMovie = () => {
   const { data: watchedUsers } = api.watched.getWatchedUsersByMovieId.useQuery({
     id: typeof id === "string" ? id : "",
   });
+
   useEffect(() => {
     const watchedUserList: string[] = [];
     watchedUsers?.map((watchedUser) => {
@@ -48,6 +49,8 @@ const SingleMovie = () => {
     id: typeof id === "string" ? id : "",
   });
 
+  const { mutate: updateMovieFields } = api.movie.updateFields.useMutation();
+
   if (moviesLoading) return <LoadingPage />;
 
   if (!movie) return <div>Couldn't load movie. Try again.</div>;
@@ -59,6 +62,10 @@ const SingleMovie = () => {
   const markWatched = () => {
     mutateWatched({ movieId: movie.id, userId: sessionData.user.id });
     setWatchedBy((prevVal) => [...prevVal, sessionData.user.name]);
+  };
+
+  const updateMissingFields = () => {
+    updateMovieFields({ movieId: movie.id, imdbId: movie.imdbId });
   };
 
   const WriteReview = ({
@@ -326,6 +333,24 @@ const SingleMovie = () => {
                 <div className="mb-2 border-b pb-1 text-sm">Metacritic</div>
                 <ReviewStars rating={movie.metacriticRating} />
                 <span className="text-xs">{movie.metacriticRating} / 5</span>
+              </div>
+            )}
+          </div>
+          <div className="mt-5 flex w-full flex-col items-center justify-between gap-4 px-2 text-sm">
+            <div className="flex flex-col items-center">
+              <div className="font-bold">Genre</div>
+              <div>{movie.genre}</div>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="font-bold">Released</div>
+              <div>{movie.released?.toLocaleString().split(",")[0]}</div>
+            </div>
+            {movie.runtime !== null && movie.runtime > 1 && (
+              <div className="flex flex-col items-center">
+                <div className="font-bold">Duration</div>
+                <div>
+                  {Math.round(((movie.runtime ?? 0) / 60) * 10) / 10} hours
+                </div>
               </div>
             )}
           </div>

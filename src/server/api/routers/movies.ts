@@ -151,6 +151,9 @@ export const movieRouter = createTRPCRouter({
         imdbRating: z.string(),
         Poster: z.string(),
         Type: z.string(),
+        Released: z.string(),
+        Runtime: z.string(),
+        Genre: z.string(),
       })
     )
     .mutation(({ ctx, input }) => {
@@ -176,6 +179,9 @@ export const movieRouter = createTRPCRouter({
           imdbRating: imdbRating,
           imageUrl: input.Poster,
           type: input.Type,
+          genre: input.Genre,
+          released: new Date(input.Released),
+          runtime: parseInt(input.Runtime.split(" ")[0] ?? "0"),
         },
       });
     }),
@@ -230,6 +236,37 @@ export const movieRouter = createTRPCRouter({
           rottenRating: rottenRating,
           metacriticRating: metaRating,
           imdbRating: imdbRating,
+        },
+      });
+    }),
+
+  updateFields: protectedProcedure
+    .input(
+      z.object({
+        movieId: z.string(),
+        imdbId: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { data } = await externalApi.get(
+        `/?apiKey=${process.env.OMDB_KEY}&i=${input.imdbId}`
+      );
+      const movie: DetailedMovie = data;
+
+      const runtime =
+        typeof parseInt(movie.Runtime.split(" ")[0]?.toString() ?? "0") !==
+        "undefined"
+          ? parseInt(movie.Runtime.split(" ")[0]?.toString() ?? "0")
+          : 0;
+
+      return ctx.prisma.movie.update({
+        where: {
+          id: input.movieId,
+        },
+        data: {
+          genre: movie.Genre,
+          released: new Date(movie.Released),
+          runtime: runtime ? runtime : 0,
         },
       });
     }),
