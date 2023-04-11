@@ -20,16 +20,16 @@ export const SearchFeed = ({ query }: { query: string }) => {
 
   return (
     <div className="">
-      <div className="m-1.5 grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="m-2 grid grid-cols-2 gap-2 gap-y-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
         {movies.map((movie) => (
           <Link
             href={`/search/movies/${movie.imdbID}`}
             key={movie.imdbID}
-            className="m-2 flex flex-col items-center justify-between overflow-hidden rounded-lg border-2 border-slate-200"
+            className="m-2 flex h-full flex-col items-center justify-between overflow-hidden rounded-lg border-2 border-slate-200"
           >
             <img
               src={movie.Poster}
-              className="block h-auto max-h-60 w-full border-b object-cover"
+              className="min-h-60 block h-fit w-full border-b object-cover"
             />
             <div className="flex h-full w-full flex-col items-center justify-center">
               <div className="my-2 text-center text-xl">{movie.Title}</div>
