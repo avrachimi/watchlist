@@ -76,6 +76,12 @@ export const Feed = () => {
     setIsSeries((prev) => !prev);
   };
 
+  const getShortMovieTitle = (title: string) => {
+    const maxLength = 12;
+    if (title.length > maxLength) return title.substring(0, maxLength) + "...";
+    return title;
+  };
+
   return (
     <div className="flex w-full flex-col justify-center sm:px-5 2xl:px-20">
       <div className="mt-2 flex w-full items-center justify-between px-5 lg:justify-start lg:gap-8">
@@ -120,9 +126,9 @@ export const Feed = () => {
                     src={movie.imageUrl}
                     className="block h-60 w-full border-b object-cover"
                   />
-                  <div className="flex h-full w-full flex-col items-center justify-between">
+                  <div className="flex w-full flex-col items-center justify-between">
                     <div className="mt-2 w-full text-center text-sm font-bold">
-                      {movie.title}
+                      {getShortMovieTitle(movie.title)}
                     </div>
                     <div className="mt-3 flex w-full flex-col items-center justify-center px-1 pb-2">
                       <ReviewStars rating={movie.friendRating} />
