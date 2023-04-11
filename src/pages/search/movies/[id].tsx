@@ -61,6 +61,26 @@ const SingleSearchMovie = () => {
     }
   };
 
+  const getHoursAndMinutes = (duration: number) => {
+    let durationFloat = duration / 60;
+    let hours = parseInt(durationFloat.toString());
+    let minutes = Math.floor((((durationFloat * 100) % 100) / 100) * 60);
+
+    let stringHours = hours.toLocaleString("en-US", {
+      minimumIntegerDigits: 2,
+      useGrouping: false,
+    });
+
+    let stringMinutes = minutes.toLocaleString("en-US", {
+      minimumIntegerDigits: 2,
+      useGrouping: false,
+    });
+
+    if (minutes <= 0) return `${hours} hours`;
+
+    return `${stringHours}:${stringMinutes}`;
+  };
+
   return (
     <>
       <Head>
@@ -68,7 +88,7 @@ const SingleSearchMovie = () => {
         <meta name="description" content="Movie and tv show recommendations" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="min-h-screen bg-gray-900">
+      <main className="min-h-screen bg-gray-900 pb-10">
         <Navbar />
         <div className="flex flex-col items-center justify-center">
           <div className="my-2 text-3xl">{movie.Title}</div>
@@ -79,6 +99,22 @@ const SingleSearchMovie = () => {
             />
             <div className="flex flex-col items-center justify-center">
               <div className="text-md my-10 px-4 text-center">{movie.Plot}</div>
+              <div className="flex w-full flex-col items-center justify-between gap-4 px-2 text-sm">
+                <div className="flex flex-col items-center">
+                  <div className="font-bold">Genre</div>
+                  <div>{movie.Genre}</div>
+                </div>
+                <div className="flex flex-col items-center">
+                  <div className="font-bold">Released</div>
+                  <div>{movie.Released?.toLocaleString().split(",")[0]}</div>
+                </div>
+                {movie.Type === "movie" && movie.Runtime !== null && (
+                  <div className="flex flex-col items-center">
+                    <div className="font-bold">Duration</div>
+                    <div>{getHoursAndMinutes(parseInt(movie.Runtime))}</div>
+                  </div>
+                )}
+              </div>
               <div className="my-2 flex w-full flex-col items-center justify-center text-center">
                 {!isMovieInDB && (
                   <button

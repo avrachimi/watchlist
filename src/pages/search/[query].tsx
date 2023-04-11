@@ -37,17 +37,9 @@ const Search = () => {
         <meta name="description" content="Movie and tv show recommendations" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="min-h-screen bg-gray-900">
+      <main className="min-h-screen bg-gray-900 pb-10">
         <Navbar query={query} />
         <SearchFeed query={typeof query === "string" ? query : ""} />
-        <div className="flex items-center justify-center">
-          <button
-            className="mt-5 rounded-lg border-2 border-slate-400 py-2 px-3 hover:bg-slate-700"
-            onClick={() => signOut()}
-          >
-            Sign out
-          </button>
-        </div>
       </main>
     </>
   );

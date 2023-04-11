@@ -27,17 +27,9 @@ const Home = () => {
         <meta name="description" content="Movie and tv show recommendations" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="min-w-screen min-h-screen bg-gray-900">
+      <main className="min-w-screen min-h-screen bg-gray-900 pb-5">
         <Navbar />
         <Feed />
-        <div className="flex items-center justify-center">
-          <button
-            className="mt-5 rounded-lg border-2 border-slate-400 py-2 px-3 hover:bg-slate-700"
-            onClick={() => signOut()}
-          >
-            Sign out
-          </button>
-        </div>
       </main>
     </>
   );

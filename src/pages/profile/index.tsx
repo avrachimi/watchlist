@@ -81,7 +81,7 @@ const MyProfile = () => {
         <WatchedMovies userId={user.id} title="Watched Movies" type="movie" />
         <WatchedMovies userId={user.id} title="Watched Shows" type="series" />
         <WatchlistMovies userId={user.id} title="Watchlist" type="all" />
-        <div className="flex items-center justify-center">
+        <div className="flex items-center justify-center py-10">
           <button
             className="mt-5 rounded-lg border-2 border-slate-400 py-2 px-3 hover:bg-slate-700"
             onClick={() => signOut()}

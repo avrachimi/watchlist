@@ -1,4 +1,4 @@
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -63,7 +63,7 @@ export const Navbar = ({ query = "" }: Props) => {
       <div className="">
         {toggleMobileNavbar && (
           <div className="absolute top-0 right-0 z-10 h-full w-[50%] bg-gray-600">
-            <div className="flex w-full flex-col items-center justify-center p-2">
+            <div className="flex h-full w-full flex-col items-center justify-start p-2">
               <div className="flex w-full items-center justify-start p-2">
                 <AiOutlineClose
                   size={25}
@@ -71,8 +71,8 @@ export const Navbar = ({ query = "" }: Props) => {
                   onClick={() => setMobileNavbar((prev) => !prev)}
                 />
               </div>
-              <div className="w-full text-right text-xl">
-                <ul className="mr-2 flex flex-col gap-2">
+              <div className="mt-8 h-full w-full text-right text-3xl">
+                <ul className="mr-2 flex h-full cursor-default flex-col gap-4">
                   <li>
                     <Link href={`/`}>Home</Link>
                   </li>
@@ -84,6 +84,12 @@ export const Navbar = ({ query = "" }: Props) => {
                   </li>
                   <li>
                     <Link href={`/profile`}>Profile</Link>
+                  </li>
+                  <li
+                    className="absolute bottom-0 right-0 mb-20 mr-2 cursor-pointer"
+                    onClick={() => signOut()}
+                  >
+                    Sign out
                   </li>
                 </ul>
               </div>

@@ -367,7 +367,7 @@ const SingleMovie = () => {
       </Head>
       <main className="min-h-auto bg-gray-900">
         <Navbar />
-        <div className="my-5 flex flex-col items-center justify-center">
+        <div className="mt-5 flex flex-col items-center justify-center">
           <div className="my-2 px-2 text-center text-3xl">{movie.title}</div>
           <div className="mb-4 flex flex-col items-center justify-center md:flex-row">
             <div className="flex flex-col items-center justify-center md:flex-row lg:w-10/12 xl:w-8/12">
@@ -382,7 +382,7 @@ const SingleMovie = () => {
                 <div className="text-md my-10 px-4 text-center">
                   {movie.plot}
                 </div>
-                <div className="mt-5 flex w-full items-center justify-around text-center">
+                <div className="mt-5 flex w-full items-center justify-around gap-5 text-center">
                   {movie.imdbRating > 0 && (
                     <div className="rounded-md border py-1 px-2">
                       <div className="mb-2 border-b pb-1 text-sm">IMDb</div>
@@ -446,17 +446,9 @@ const SingleMovie = () => {
               </button>
             )}
           </div>
-          <div className="mt-8 flex w-full flex-col items-center justify-center lg:w-10/12 xl:w-8/12">
+          <div className="my-8 flex w-full flex-col items-center justify-center lg:w-10/12 xl:w-8/12">
             <Reviews movieId={movie.id} />
           </div>
-        </div>
-        <div className="flex items-center justify-center">
-          <button
-            className="my-5 rounded-lg border-2 border-slate-400 py-2 px-3 hover:bg-slate-700"
-            onClick={() => signOut()}
-          >
-            Sign out
-          </button>
         </div>
       </main>
     </>

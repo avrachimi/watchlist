@@ -73,7 +73,7 @@ const Profile = () => {
         <meta name="description" content="Movie and tv show recommendations" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="min-h-screen bg-gray-900">
+      <main className="min-h-screen bg-gray-900 pb-10">
         <Navbar />
         <div className="mx-4 flex flex-col items-center justify-center pb-2">
           <div className="m-2 mt-5 flex w-[50%] items-center justify-center">
@@ -96,14 +96,6 @@ const Profile = () => {
         <WatchedMovies userId={user.id} title="Watched Movies" type="movie" />
         <WatchedMovies userId={user.id} title="Watched Shows" type="series" />
         <WatchlistMovies userId={user.id} title="Watchlist" type="all" />
-        <div className="flex items-center justify-center">
-          <button
-            className="mt-5 rounded-lg border-2 border-slate-400 py-2 px-3 hover:bg-slate-700"
-            onClick={() => signOut()}
-          >
-            Sign out
-          </button>
-        </div>
       </main>
     </>
   );

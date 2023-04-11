@@ -62,7 +62,7 @@ const Friends = () => {
         <meta name="description" content="Movie and tv show recommendations" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="min-h-screen bg-gray-900">
+      <main className="min-h-screen bg-gray-900 pb-10">
         <Navbar />
         <div className="flex w-full flex-col">
           <div className="relative overflow-x-auto">
