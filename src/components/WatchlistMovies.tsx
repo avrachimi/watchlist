@@ -35,64 +35,74 @@ const WatchlistMovies = ({
   if (!user)
     return <ErrorComponent name="Error" details="Couldn't load user" />;
 
+  const getMovieComponents = () => {
+    const components: React.ReactElement[] = [];
+
+    watchlistMovies.map((watchlist) => {
+      if (type === "all") {
+        components.push(
+          <Link
+            href={`/movies/${watchlist.movieId}`}
+            key={watchlist.id}
+            className="m-2 flex w-40 flex-col items-center justify-between overflow-hidden rounded-lg border-2 border-slate-200"
+          >
+            <img
+              src={watchlist.movie.imageUrl}
+              className="block h-60 w-full border-b object-cover"
+            />
+            <div className="flex h-fit w-full flex-col items-center justify-between">
+              <div className="my-2 text-center text-lg font-bold">
+                {getShortMovieTitle(watchlist.movie.title)}
+              </div>
+              <div className="mt-1 mb-2">
+                <ReviewStars rating={watchlist.movie.friendRating} />
+              </div>
+            </div>
+          </Link>
+        );
+      } else if (type === watchlist.movie.type) {
+        components.push(
+          <Link
+            href={`/movies/${watchlist.movieId}`}
+            key={watchlist.id}
+            className="m-2 flex w-40 flex-col items-center justify-between overflow-hidden rounded-lg border-2 border-slate-200"
+          >
+            <img
+              src={watchlist.movie.imageUrl}
+              className="block h-60 w-full border-b object-cover"
+            />
+            <div className="flex h-fit w-full flex-col items-center justify-between">
+              <div className="my-2 text-center text-lg font-bold">
+                {getShortMovieTitle(watchlist.movie.title)}
+              </div>
+              <div className="mt-1 mb-2">
+                <ReviewStars rating={watchlist.movie.friendRating} />
+              </div>
+            </div>
+          </Link>
+        );
+      }
+    });
+
+    return components.length !== 0 ? (
+      <div className="mx-4 mt-4 flex flex-col">
+        <div className="mb-2 border-b text-lg">{title}</div>
+        <div className="w-auto overflow-x-auto">
+          <div className="grid h-fit w-auto grid-flow-col grid-rows-1">
+            {components}
+          </div>
+        </div>
+      </div>
+    ) : null;
+  };
+
   const getShortMovieTitle = (title: string) => {
     const maxLength = 12;
     if (title.length > maxLength) return title.substring(0, maxLength) + "...";
     return title;
   };
 
-  return (
-    <>
-      <div className="mx-4 mt-4 flex flex-col">
-        <div className="mb-2 border-b text-lg">{title}</div>
-        <div className="w-auto overflow-x-auto">
-          <div className="grid h-fit w-auto grid-flow-col grid-rows-1">
-            {watchlistMovies.map((watchlist) =>
-              type === "all" ? (
-                <Link
-                  href={`/movies/${watchlist.movieId}`}
-                  key={watchlist.id}
-                  className="m-2 flex w-40 flex-col items-center justify-between overflow-hidden rounded-lg border-2 border-slate-200"
-                >
-                  <img
-                    src={watchlist.movie.imageUrl}
-                    className="block h-60 w-full border-b object-cover"
-                  />
-                  <div className="flex h-fit w-full flex-col items-center justify-between">
-                    <div className="my-2 text-center text-lg font-bold">
-                      {getShortMovieTitle(watchlist.movie.title)}
-                    </div>
-                    <div className="mt-1 mb-2">
-                      <ReviewStars rating={watchlist.movie.friendRating} />
-                    </div>
-                  </div>
-                </Link>
-              ) : watchlist.movie.type === type ? (
-                <Link
-                  href={`/movies/${watchlist.movieId}`}
-                  key={watchlist.id}
-                  className="m-2 flex w-40 flex-col items-center justify-between overflow-hidden rounded-lg border-2 border-slate-200"
-                >
-                  <img
-                    src={watchlist.movie.imageUrl}
-                    className="block h-60 w-full border-b object-cover"
-                  />
-                  <div className="flex h-fit w-full flex-col items-center justify-between">
-                    <div className="my-2 text-center text-lg font-bold">
-                      {getShortMovieTitle(watchlist.movie.title)}
-                    </div>
-                    <div className="mt-1 mb-2">
-                      <ReviewStars rating={watchlist.movie.friendRating} />
-                    </div>
-                  </div>
-                </Link>
-              ) : null
-            )}
-          </div>
-        </div>
-      </div>
-    </>
-  );
+  return <>{getMovieComponents()}</>;
 };
 
 export default WatchlistMovies;
