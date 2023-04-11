@@ -10,6 +10,7 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import WatchedMovies from "~/components/WatchedMovies";
 import WatchlistMovies from "~/components/WatchlistMovies";
+import ErrorPage from "~/components/ErrorPage";
 
 dayjs.extend(relativeTime);
 
@@ -34,7 +35,13 @@ const MyProfile = () => {
 
   if (isLoadingUser) return <LoadingPage />;
 
-  if (!user) return <div>Something went wrong. Try again.</div>;
+  if (!user)
+    return (
+      <ErrorPage
+        name="Error"
+        details="Couldn't load profile. Try again by refreshing the page."
+      />
+    );
 
   let moviesWatchedCount = user.Watched.filter(
     (watched) => watched.userId === user.id && watched.movie.type === "movie"

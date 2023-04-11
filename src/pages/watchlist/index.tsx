@@ -9,6 +9,7 @@ import { LoadingPage } from "~/components/loading";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import WatchlistMovies from "~/components/WatchlistMovies";
+import ErrorPage from "~/components/ErrorPage";
 
 dayjs.extend(relativeTime);
 
@@ -33,7 +34,13 @@ const Watchlist = () => {
 
   if (isLoadingUser) return <LoadingPage />;
 
-  if (!user) return <div>Something went wrong. Try again.</div>;
+  if (!user)
+    return (
+      <ErrorPage
+        name="Error"
+        details="Couldn't load user. Try again by refreshing the page."
+      />
+    );
 
   return (
     <>

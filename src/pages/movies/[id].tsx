@@ -13,6 +13,7 @@ import { Prisma } from "@prisma/client";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import Link from "next/link";
+import ErrorPage from "~/components/ErrorPage";
 
 dayjs.extend(relativeTime);
 
@@ -65,7 +66,13 @@ const SingleMovie = () => {
 
   if (moviesLoading) return <LoadingPage />;
 
-  if (!movie) return <div>Couldn't load movie. Try again.</div>;
+  if (!movie)
+    return (
+      <ErrorPage
+        name="Error"
+        details="Couldn't load movie. Try again by refreshing the page."
+      />
+    );
 
   if (!sessionData?.user) {
     return NextResponse.redirect("https://watch.avrachimi.com");
@@ -79,6 +86,26 @@ const SingleMovie = () => {
   const addToWatchlist = () => {
     mutateWatchlist({ movieId: movie.id, userId: sessionData.user.id });
     setInWatchlist(true);
+  };
+
+  const getHoursAndMinutes = (duration: number) => {
+    let durationFloat = duration / 60;
+    let hours = parseInt(durationFloat.toString());
+    let minutes = Math.floor((((durationFloat * 100) % 100) / 100) * 60);
+
+    let stringHours = hours.toLocaleString("en-US", {
+      minimumIntegerDigits: 2,
+      useGrouping: false,
+    });
+
+    let stringMinutes = minutes.toLocaleString("en-US", {
+      minimumIntegerDigits: 2,
+      useGrouping: false,
+    });
+
+    if (minutes <= 0) return `${hours} hours`;
+
+    return `${stringHours}:${stringMinutes}`;
   };
 
   const WriteReview = ({
@@ -358,12 +385,10 @@ const SingleMovie = () => {
               <div className="font-bold">Released</div>
               <div>{movie.released?.toLocaleString().split(",")[0]}</div>
             </div>
-            {movie.runtime !== null && movie.runtime / 60 > 1 && (
+            {movie.type === "movie" && movie.runtime !== null && (
               <div className="flex flex-col items-center">
                 <div className="font-bold">Duration</div>
-                <div>
-                  {Math.round(((movie.runtime ?? 0) / 60) * 10) / 10} hours
-                </div>
+                <div>{getHoursAndMinutes(movie.runtime)}</div>
               </div>
             )}
           </div>

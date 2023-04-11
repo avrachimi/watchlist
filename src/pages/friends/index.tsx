@@ -10,6 +10,7 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import WatchedMovies from "~/components/WatchedMovies";
 import Link from "next/link";
+import ErrorPage from "~/components/ErrorPage";
 
 dayjs.extend(relativeTime);
 
@@ -32,7 +33,13 @@ const Friends = () => {
 
   if (isLoadingUsers) return <LoadingPage />;
 
-  if (!users) return <div>Something went wrong. Try again.</div>;
+  if (!users)
+    return (
+      <ErrorPage
+        name="Error"
+        details="Couldn't load user. Try again by refreshing the page."
+      />
+    );
 
   console.log(users);
 
@@ -93,7 +100,25 @@ const Friends = () => {
                       <td className="px-6 py-4">{moviesWatchedCount(user)}</td>
                       <td className="px-6 py-4">{seriesWatchedCount(user)}</td>
                     </tr>
-                  ) : null
+                  ) : (
+                    <tr className="border-b bg-white dark:border-gray-700 dark:bg-gray-800">
+                      <th
+                        scope="row"
+                        className="flex items-center gap-3 whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white"
+                      >
+                        <div className="flex w-8 items-center justify-center">
+                          <img
+                            className="rounded-full border border-gray-400"
+                            src={user.image ?? placeholderProfilePic.src}
+                            alt=""
+                          />
+                        </div>
+                        <Link href={`/profile`}>You</Link>
+                      </th>
+                      <td className="px-6 py-4">{moviesWatchedCount(user)}</td>
+                      <td className="px-6 py-4">{seriesWatchedCount(user)}</td>
+                    </tr>
+                  )
                 )}
               </tbody>
             </table>

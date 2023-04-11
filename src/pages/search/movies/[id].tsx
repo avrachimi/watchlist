@@ -8,6 +8,7 @@ import { useRouter } from "next/router";
 import { NextResponse } from "next/server";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import ErrorPage from "~/components/ErrorPage";
 
 const SingleSearchMovie = () => {
   const { data: sessionData } = useSession();
@@ -31,7 +32,13 @@ const SingleSearchMovie = () => {
 
   if (movieLoading) return <LoadingPage />;
 
-  if (!movie) return <div>Couldn't load movie. Try again.</div>;
+  if (!movie)
+    return (
+      <ErrorPage
+        name="Error"
+        details="Couldn't load movie. Try again by refreshing the page."
+      />
+    );
 
   if (!sessionData?.user) {
     return (
