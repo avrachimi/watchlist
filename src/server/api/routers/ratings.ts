@@ -50,9 +50,16 @@ export const ratingRouter = createTRPCRouter({
           user: true,
           movie: true,
         },
-        orderBy: {
-          rating: "desc",
-        },
+        orderBy: [
+          {
+            rating: "desc",
+          },
+          {
+            movie: {
+              title: "asc",
+            },
+          },
+        ],
       });
     }),
 

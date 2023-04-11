@@ -56,14 +56,26 @@ const Profile = () => {
     (watched) => watched.userId === user.id && watched.movie.type === "series"
   ).length;
 
-  const getUserRating = (movieId: string) => {
-    let result = 0;
-
-    user.Rating.map((rating) => {
-      if (rating.userId === user.id && rating.movieId === movieId)
-        result = rating.rating;
+  const getWatchedMoviesLength = () => {
+    let watchedMinutesSum = 0;
+    user.Watched.map((watched) => {
+      if (watched.movie.type === "movie")
+        watchedMinutesSum += watched.movie.runtime ?? 0;
     });
-    return result;
+    return watchedMinutesSum;
+  };
+
+  const getReadableWatchedLength = (minutes: number) => {
+    let days = Math.floor(minutes / 24 / 60);
+    let hours = Math.floor((minutes / 60) % 24);
+    let mins = Math.floor(minutes % 60);
+
+    if (days < 1 && hours < 1 && mins < 1) return "No movie watch history";
+
+    let daysStr = days >= 1 ? `${days} days,` : "";
+    let hoursStr = hours >= 1 ? ` ${hours} hours` : "";
+    let minsStr = mins >= 1 ? ` and ${mins} minutes` : "";
+    return `${daysStr}${hoursStr}${minsStr}`;
   };
 
   return (
@@ -91,6 +103,10 @@ const Profile = () => {
             <div className="flex w-full justify-center border-l">
               {seriesWatchedCount} shows
             </div>
+          </div>
+          <div className="mt-5 flex flex-col items-center justify-center rounded-lg border-2 bg-blue-900 p-2 shadow-md shadow-gray-600">
+            <div className="text-lg font-bold">Movie Watch Time</div>
+            {getReadableWatchedLength(getWatchedMoviesLength())}
           </div>
         </div>
         <WatchedMovies userId={user.id} title="Watched Movies" type="movie" />
