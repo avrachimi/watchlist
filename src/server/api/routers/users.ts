@@ -22,6 +22,11 @@ export const userRouter = createTRPCRouter({
           },
         },
       },
+      orderBy: {
+        Watched: {
+          _count: "desc",
+        },
+      },
     });
   }),
 

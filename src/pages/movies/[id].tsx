@@ -24,16 +24,26 @@ type ratingType = Prisma.RatingGetPayload<{
 
 const SingleMovie = () => {
   const [watchedBy, setWatchedBy] = useState([""]);
+  const [isInWatchlist, setInWatchlist] = useState(true);
   const { data: sessionData } = useSession();
   const router = useRouter();
   let { id } = router.query;
+  id = typeof id === "string" ? id : "";
   const { mutate: mutateWatched, error: errorWatched } =
     api.watched.markWatched.useMutation();
+  const { mutate: mutateWatchlist, error: errorWatchlist } =
+    api.watchlist.add.useMutation();
+  const { data: watchlist, isLoading: watchlistLoading } =
+    api.watchlist.getWatchlistMovie.useQuery({
+      userId: sessionData?.user.id ?? "",
+      movieId: id,
+    });
   const [reviews, setReviews] = useState<ratingType[]>([]);
   const [reviewed, setReviewed] = useState(false);
+  const [didLoadWatchlist, setLoadWatchlist] = useState(false);
 
   const { data: watchedUsers } = api.watched.getWatchedUsersByMovieId.useQuery({
-    id: typeof id === "string" ? id : "",
+    id: id,
   });
 
   useEffect(() => {
@@ -45,11 +55,13 @@ const SingleMovie = () => {
     console.log(watchedUsers);
   }, [watchedUsers]);
 
+  useEffect(() => {
+    setInWatchlist(watchlist ? true : false);
+  }, [watchlistLoading]);
+
   const { data: movie, isLoading: moviesLoading } = api.movie.getById.useQuery({
     id: typeof id === "string" ? id : "",
   });
-
-  const { mutate: updateMovieFields } = api.movie.updateFields.useMutation();
 
   if (moviesLoading) return <LoadingPage />;
 
@@ -64,8 +76,9 @@ const SingleMovie = () => {
     setWatchedBy((prevVal) => [...prevVal, sessionData.user.name]);
   };
 
-  const updateMissingFields = () => {
-    updateMovieFields({ movieId: movie.id, imdbId: movie.imdbId });
+  const addToWatchlist = () => {
+    mutateWatchlist({ movieId: movie.id, userId: sessionData.user.id });
+    setInWatchlist(true);
   };
 
   const WriteReview = ({
@@ -364,12 +377,12 @@ const SingleMovie = () => {
                 </div>
               ))}
             </span>
-            {!watchedBy.includes(sessionData.user.name) && (
+            {!isInWatchlist && !watchedBy.includes(sessionData.user.name) && (
               <button
                 className="mt-10 rounded-md border-2 bg-green-800 p-2 text-gray-200"
-                onClick={markWatched}
+                onClick={addToWatchlist}
               >
-                Mark as watched
+                Add to Watchlist
               </button>
             )}
           </div>

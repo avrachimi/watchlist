@@ -8,13 +8,15 @@ import { api } from "~/utils/api";
 import { LoadingPage } from "~/components/loading";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import WatchedMovies from "~/components/WatchedMovies";
+import WatchlistMovies from "~/components/WatchlistMovies";
 
 dayjs.extend(relativeTime);
 
 const Watchlist = () => {
   const { data: sessionData } = useSession();
-  const { data: users, isLoading: isLoadingUsers } = api.user.getAll.useQuery();
+  const { data: user, isLoading: isLoadingUser } = api.user.getById.useQuery({
+    id: sessionData?.user.id ?? "",
+  });
 
   if (!sessionData?.user) {
     return (
@@ -29,9 +31,9 @@ const Watchlist = () => {
     );
   }
 
-  if (isLoadingUsers) return <LoadingPage />;
+  if (isLoadingUser) return <LoadingPage />;
 
-  if (!users) return <div>Something went wrong. Try again.</div>;
+  if (!user) return <div>Something went wrong. Try again.</div>;
 
   return (
     <>
@@ -42,6 +44,18 @@ const Watchlist = () => {
       </Head>
       <main className="min-h-screen bg-gray-900">
         <Navbar />
+        <div className="flex w-full flex-col">
+          <WatchlistMovies
+            userId={user.id}
+            type="movie"
+            title="Watchlist - Movies"
+          />
+          <WatchlistMovies
+            userId={user.id}
+            type="series"
+            title="Watchlist - Series"
+          />
+        </div>
       </main>
     </>
   );

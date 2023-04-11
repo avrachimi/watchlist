@@ -8,9 +8,8 @@ import { api } from "~/utils/api";
 import { LoadingPage } from "~/components/loading";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import Link from "next/link";
-import ReviewStars from "~/components/ReviewStars";
 import WatchedMovies from "~/components/WatchedMovies";
+import WatchlistMovies from "~/components/WatchlistMovies";
 
 dayjs.extend(relativeTime);
 
@@ -45,16 +44,6 @@ const MyProfile = () => {
     (watched) => watched.userId === user.id && watched.movie.type === "series"
   ).length;
 
-  const getUserRating = (movieId: string) => {
-    let result = 0;
-
-    user.Rating.map((rating) => {
-      if (rating.userId === user.id && rating.movieId === movieId)
-        result = rating.rating;
-    });
-    return result;
-  };
-
   return (
     <>
       <Head>
@@ -84,6 +73,7 @@ const MyProfile = () => {
         </div>
         <WatchedMovies userId={user.id} title="Watched Movies" type="movie" />
         <WatchedMovies userId={user.id} title="Watched Shows" type="series" />
+        <WatchlistMovies userId={user.id} title="Watchlist" type="all" />
         <div className="flex items-center justify-center">
           <button
             className="mt-5 rounded-lg border-2 border-slate-400 py-2 px-3 hover:bg-slate-700"
