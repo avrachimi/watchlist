@@ -35,21 +35,23 @@ export const ratingRouter = createTRPCRouter({
       });
     }),
 
-  getByMovieAndUserId: protectedProcedure
+  getMoviesByUserId: protectedProcedure
     .input(
       z.object({
-        movieId: z.string(),
         userId: z.string(),
       })
     )
     .query(({ ctx, input }) => {
-      return ctx.prisma.rating.findFirst({
+      return ctx.prisma.rating.findMany({
         where: {
-          movieId: input.movieId,
           userId: input.userId,
         },
         include: {
           user: true,
+          movie: true,
+        },
+        orderBy: {
+          rating: "desc",
         },
       });
     }),

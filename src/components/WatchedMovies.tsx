@@ -21,20 +21,21 @@ const WatchedMovies = ({
   title: string;
   type: string;
 }) => {
-  const { data: user, isLoading: isLoadingUser } = api.user.getById.useQuery({
-    id: userId,
-  });
+  const { data: rating, isLoading: isLoadingRating } =
+    api.rating.getMoviesByUserId.useQuery({
+      userId: userId,
+    });
 
-  if (isLoadingUser) return <LoadingPage />;
+  if (isLoadingRating) return <LoadingPage />;
 
-  if (!user)
+  if (!rating)
     return <ErrorComponent name="Error" details="Couldn't load user" />;
 
   const getUserRating = (movieId: string) => {
     let result = 0;
 
-    user.Rating.map((rating) => {
-      if (rating.userId === user.id && rating.movieId === movieId)
+    rating.map((rating) => {
+      if (rating.userId === userId && rating.movieId === movieId)
         result = rating.rating;
     });
     return result;
@@ -52,26 +53,26 @@ const WatchedMovies = ({
         <div className="mb-2 border-b text-lg">{title}</div>
         <div className="w-auto overflow-x-auto">
           <div className="grid h-fit w-auto grid-flow-col grid-rows-1">
-            {user.Watched.map((watched) =>
-              watched.movie.type === type ? (
+            {rating.map((rating) =>
+              rating.movie.type === type ? (
                 <Link
-                  href={`/movies/${watched.movie.id}`}
-                  key={watched.movie.id}
+                  href={`/movies/${rating.movie.id}`}
+                  key={rating.movie.id}
                   className="m-2 flex w-40 flex-col items-center justify-between overflow-hidden rounded-lg border-2 border-slate-200"
                 >
                   <img
-                    src={watched.movie.imageUrl}
+                    src={rating.movie.imageUrl}
                     className="block h-60 w-full border-b object-cover"
                   />
                   <div className="flex h-fit w-full flex-col items-center justify-between">
                     <div className="my-2 text-center text-lg font-bold">
-                      {getShortMovieTitle(watched.movie.title)}
+                      {getShortMovieTitle(rating.movie.title)}
                     </div>
                     <div className="mt-1 mb-2">
                       <span className="mb-1 flex justify-center text-xs">
                         This user's rating
                       </span>
-                      <ReviewStars rating={getUserRating(watched.movieId)} />
+                      <ReviewStars rating={getUserRating(rating.movieId)} />
                     </div>
                   </div>
                 </Link>
