@@ -369,51 +369,65 @@ const SingleMovie = () => {
         <Navbar />
         <div className="my-5 flex flex-col items-center justify-center">
           <div className="my-2 px-2 text-center text-3xl">{movie.title}</div>
-          <img
-            src={movie.imageUrl}
-            className="my-3 w-[65%] border object-contain"
-          />
-          <ReviewStars rating={movie.friendRating} />
-          <div className="mt-5 flex w-full items-center justify-around text-center">
-            {movie.imdbRating > 0 && (
-              <div className="rounded-md border py-1 px-2">
-                <div className="mb-2 border-b pb-1 text-sm">IMDb</div>
-                <ReviewStars rating={movie.imdbRating} />
-                <span className="text-xs">{movie.imdbRating} / 5</span>
+          <div className="mb-4 flex flex-col items-center justify-center md:flex-row">
+            <div className="flex flex-col items-center justify-center md:flex-row lg:w-10/12 xl:w-8/12">
+              <div className="flex h-full w-full flex-col items-center justify-center md:m-5 md:w-[50%]">
+                <img
+                  src={movie.imageUrl}
+                  className="my-3 w-[65%] border object-contain md:w-full"
+                />
+                <ReviewStars rating={movie.friendRating} />
               </div>
-            )}
-            {movie.rottenRating > 0 && (
-              <div className="rounded-md border py-1 px-2">
-                <div className="mb-2 border-b pb-1 text-sm">Rotten</div>
-                <ReviewStars rating={movie.rottenRating} />
-                <span className="text-xs">{movie.rottenRating} / 5</span>
+              <div className="flex w-4/6 flex-col">
+                <div className="text-md my-10 px-4 text-center">
+                  {movie.plot}
+                </div>
+                <div className="mt-5 flex w-full items-center justify-around text-center">
+                  {movie.imdbRating > 0 && (
+                    <div className="rounded-md border py-1 px-2">
+                      <div className="mb-2 border-b pb-1 text-sm">IMDb</div>
+                      <ReviewStars rating={movie.imdbRating} />
+                      <span className="text-xs">{movie.imdbRating} / 5</span>
+                    </div>
+                  )}
+                  {movie.rottenRating > 0 && (
+                    <div className="rounded-md border py-1 px-2">
+                      <div className="mb-2 border-b pb-1 text-sm">Rotten</div>
+                      <ReviewStars rating={movie.rottenRating} />
+                      <span className="text-xs">{movie.rottenRating} / 5</span>
+                    </div>
+                  )}
+                  {movie.metacriticRating > 0 && (
+                    <div className="rounded-md border py-1 px-2">
+                      <div className="mb-2 border-b pb-1 text-sm">
+                        Metacritic
+                      </div>
+                      <ReviewStars rating={movie.metacriticRating} />
+                      <span className="text-xs">
+                        {movie.metacriticRating} / 5
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <div className="mt-10 flex w-full flex-col items-center justify-between gap-4 px-2 text-sm">
+                  <div className="flex flex-col items-center">
+                    <div className="font-bold">Genre</div>
+                    <div>{movie.genre}</div>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <div className="font-bold">Released</div>
+                    <div>{movie.released?.toLocaleString().split(",")[0]}</div>
+                  </div>
+                  {movie.type === "movie" && movie.runtime !== null && (
+                    <div className="flex flex-col items-center">
+                      <div className="font-bold">Duration</div>
+                      <div>{getHoursAndMinutes(movie.runtime)}</div>
+                    </div>
+                  )}
+                </div>
               </div>
-            )}
-            {movie.metacriticRating > 0 && (
-              <div className="rounded-md border py-1 px-2">
-                <div className="mb-2 border-b pb-1 text-sm">Metacritic</div>
-                <ReviewStars rating={movie.metacriticRating} />
-                <span className="text-xs">{movie.metacriticRating} / 5</span>
-              </div>
-            )}
-          </div>
-          <div className="mt-5 flex w-full flex-col items-center justify-between gap-4 px-2 text-sm">
-            <div className="flex flex-col items-center">
-              <div className="font-bold">Genre</div>
-              <div>{movie.genre}</div>
             </div>
-            <div className="flex flex-col items-center">
-              <div className="font-bold">Released</div>
-              <div>{movie.released?.toLocaleString().split(",")[0]}</div>
-            </div>
-            {movie.type === "movie" && movie.runtime !== null && (
-              <div className="flex flex-col items-center">
-                <div className="font-bold">Duration</div>
-                <div>{getHoursAndMinutes(movie.runtime)}</div>
-              </div>
-            )}
           </div>
-          <div className="text-md my-10 px-4 text-center">{movie.plot}</div>
           <div className="my-2 flex w-full flex-col items-center justify-center text-center">
             <span className="text-lg underline">Watched By</span>
             <span className="mt-2 grid grid-cols-2 gap-3">
@@ -432,7 +446,7 @@ const SingleMovie = () => {
               </button>
             )}
           </div>
-          <div className="mt-8 flex w-full flex-col items-center justify-center">
+          <div className="mt-8 flex w-full flex-col items-center justify-center lg:w-10/12 xl:w-8/12">
             <Reviews movieId={movie.id} />
           </div>
         </div>
