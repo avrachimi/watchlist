@@ -22,6 +22,11 @@ export const watchlistRouter = createTRPCRouter({
           user: true,
           movie: true,
         },
+        orderBy: {
+          movie: {
+            friendRating: "desc",
+          },
+        },
       });
     }),
 
