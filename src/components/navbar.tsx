@@ -74,10 +74,10 @@ export const Navbar = ({ query = "" }: Props) => {
                     <Link href={`/`}>Home</Link>
                   </li>
                   <li>
-                    <Link href={`/`}>Watchlist</Link>
+                    <Link href={`/watchlist`}>Watchlist</Link>
                   </li>
                   <li>
-                    <Link href={`/`}>Friends</Link>
+                    <Link href={`/friends`}>Friends</Link>
                   </li>
                   <li>
                     <Link href={`/profile`}>Profile</Link>

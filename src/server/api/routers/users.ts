@@ -7,6 +7,24 @@ import {
 } from "~/server/api/trpc";
 
 export const userRouter = createTRPCRouter({
+  getAll: protectedProcedure.query(({ ctx }) => {
+    return ctx.prisma.user.findMany({
+      include: {
+        Watched: {
+          include: {
+            user: true,
+            movie: true,
+          },
+        },
+        Rating: {
+          orderBy: {
+            rating: "desc",
+          },
+        },
+      },
+    });
+  }),
+
   getById: protectedProcedure
     .input(
       z.object({
