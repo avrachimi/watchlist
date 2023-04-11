@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { api } from "~/utils/api";
 import ErrorComponent from "./ErrorComponent";
 import { LoadingPage } from "./loading";

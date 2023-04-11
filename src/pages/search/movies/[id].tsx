@@ -24,13 +24,12 @@ const SingleSearchMovie = () => {
   const { mutate: mutateMovie, error: errorMovie } =
     api.movie.create.useMutation();
   const [isMovieInDB, setMovieInDB] = useState(false);
-  console.log(isMovieInDB);
 
   useEffect(() => {
     setMovieInDB(dbMovie ? true : false);
   }, [dbMovieLoading]);
 
-  if (movieLoading) return <LoadingPage />;
+  if (movieLoading || dbMovieLoading) return <LoadingPage />;
 
   if (!movie)
     return (
@@ -52,6 +51,8 @@ const SingleSearchMovie = () => {
       </div>
     );
   }
+
+  if (dbMovie && isMovieInDB) router.push(`/movies/${dbMovie?.id}`);
 
   const markWatched = async () => {
     if (!dbMovie) {

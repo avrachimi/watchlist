@@ -77,8 +77,8 @@ export const Feed = () => {
   };
 
   const getShortMovieTitle = (title: string) => {
-    const maxLength = 12;
-    if (title.length > maxLength) return title.substring(0, maxLength) + "...";
+    const maxLength = 20;
+    if (title.length > maxLength) return title.substring(0, maxLength) + "..";
     return title;
   };
 

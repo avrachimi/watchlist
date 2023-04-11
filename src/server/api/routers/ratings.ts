@@ -81,13 +81,17 @@ export const ratingRouter = createTRPCRouter({
   delete: protectedProcedure
     .input(
       z.object({
-        id: z.string(),
+        userId: z.string(),
+        movieId: z.string(),
       })
     )
     .mutation(({ ctx, input }) => {
       return ctx.prisma.rating.delete({
         where: {
-          id: input.id,
+          userId_movieId: {
+            userId: input.userId,
+            movieId: input.movieId,
+          },
         },
       });
     }),

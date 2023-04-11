@@ -30,6 +30,7 @@ const SingleMovie = () => {
   const router = useRouter();
   let { id } = router.query;
   id = typeof id === "string" ? id : "";
+
   const { mutate: mutateWatched, error: errorWatched } =
     api.watched.markWatched.useMutation();
   const { mutate: mutateWatchlist, error: errorWatchlist } =
@@ -39,9 +40,14 @@ const SingleMovie = () => {
       userId: sessionData?.user.id ?? "",
       movieId: id,
     });
+  const { data: ratings, isLoading: ratingsLoading } =
+    api.rating.getByMovieId.useQuery({
+      movieId: id,
+    });
+  const { mutate: mutateFriendRating } = api.movie.updateRatings.useMutation();
   const [reviews, setReviews] = useState<ratingType[]>([]);
   const [reviewed, setReviewed] = useState(false);
-  const [didLoadWatchlist, setLoadWatchlist] = useState(false);
+  const [deletedReview, setDeletedReview] = useState(false);
 
   const { data: watchedUsers } = api.watched.getWatchedUsersByMovieId.useQuery({
     id: id,
@@ -59,6 +65,25 @@ const SingleMovie = () => {
   useEffect(() => {
     setInWatchlist(watchlist ? true : false);
   }, [watchlistLoading]);
+
+  useEffect(() => {
+    if (!ratingsLoading) {
+      if (ratings) setReviews(ratings);
+      let result = false;
+      ratings?.map((rating) => {
+        if (rating.userId === sessionData?.user.id) result = true;
+      });
+      setReviewed(result);
+    }
+  }, [ratingsLoading]);
+
+  useEffect(() => {
+    let result = false;
+    reviews.map((rating) => {
+      if (rating.userId === sessionData?.user.id) result = true;
+    });
+    setReviewed(result);
+  }, [deletedReview]);
 
   const { data: movie, isLoading: moviesLoading } = api.movie.getById.useQuery({
     id: typeof id === "string" ? id : "",
@@ -170,6 +195,8 @@ const SingleMovie = () => {
             };
             setReviews([...reviews, newReview]);
             setReviewed(true);
+            setDeletedReview(false);
+
             console.log(reviews);
           }}
         >
@@ -236,28 +263,17 @@ const SingleMovie = () => {
   };
 
   const Reviews = ({ movieId }: { movieId: string }) => {
-    const { data: ratings, isLoading: ratingsLoading } =
-      api.rating.getByMovieId.useQuery({
-        movieId: movieId,
-      });
     const { mutate: deleteMutation, isLoading: ratingDeletionLoading } =
       api.rating.delete.useMutation();
     const { mutate: mutateMovieRatings, error: errorMovieRatings } =
       api.movie.updateRatings.useMutation();
 
-    useEffect(() => {
-      if (ratings) setReviews(ratings);
-      ratings?.map((rating) => {
-        if (rating.userId === sessionData.user.id) setReviewed(true);
-      });
-    }, [reviewed, ratingsLoading]);
-
     if (ratingsLoading) return <LoadingPage />;
 
     if (!ratings) return <div>No ratings found</div>;
 
-    const deleteRating = (id: string) => {
-      deleteMutation({ id: id });
+    const deleteRating = (userId: string, movieId: string) => {
+      deleteMutation({ userId: userId, movieId: movieId });
       let rating =
         reviews.find((review) => {
           review.user.id === sessionData.user.id;
@@ -265,17 +281,22 @@ const SingleMovie = () => {
 
       if (!ratingDeletionLoading) {
         const currReviews: ratingType[] = [];
-        reviews.map((review) =>
-          review.id !== id ? currReviews.push(review) : null
-        );
+        let hasReviewed = false;
+
+        reviews.map((review) => {
+          if (review.userId !== userId) currReviews.push(review);
+          if (review.userId === sessionData.user.id && review.id === "N/A")
+            hasReviewed = true;
+        });
         setReviews(currReviews);
+        setReviewed(hasReviewed);
+        setDeletedReview(true);
         mutateMovieRatings({
           movieId: movieId,
           reviews: reviews,
           imdbId: movie.imdbId,
           currRating: -rating,
         });
-        setReviewed(false);
       }
     };
 
@@ -316,7 +337,7 @@ const SingleMovie = () => {
             {sessionData.user.id === review.userId && (
               <button
                 className="my-1 rounded-lg border-2 border-gray-400 bg-red-700 px-2 py-1 text-center text-lg"
-                onClick={() => deleteRating(review.id)}
+                onClick={() => deleteRating(review.userId, review.movieId)}
               >
                 Delete
               </button>
