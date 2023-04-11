@@ -10,6 +10,7 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import Link from "next/link";
 import ReviewStars from "~/components/ReviewStars";
+import ErrorComponent from "./ErrorComponent";
 
 const WatchlistMovies = ({
   userId,
@@ -22,11 +23,24 @@ const WatchlistMovies = ({
 }) => {
   const { data: watchlistMovies, isLoading: watchlistLoading } =
     api.watchlist.getWatchlistMoviesByUserId.useQuery({ id: userId });
+  const { data: user, isLoading: isLoadingUser } = api.user.getById.useQuery({
+    id: userId,
+  });
 
-  if (watchlistLoading) return <LoadingSpinner />;
+  if (watchlistLoading || isLoadingUser) return <LoadingSpinner />;
 
-  if (!watchlistMovies) return <div>Something went wrong. Try again.</div>;
-  console.log(watchlistMovies);
+  if (!watchlistMovies)
+    return <ErrorComponent name="Error" details="Couldn't load watchlist" />;
+
+  if (!user)
+    return <ErrorComponent name="Error" details="Couldn't load user" />;
+
+  const getShortMovieTitle = (title: string) => {
+    const maxLength = 12;
+    if (title.length > maxLength) return title.substring(0, maxLength) + "...";
+    return title;
+  };
+
   return (
     <>
       <div className="mx-4 mt-4 flex flex-col">
@@ -46,7 +60,10 @@ const WatchlistMovies = ({
                   />
                   <div className="flex h-fit w-full flex-col items-center justify-between">
                     <div className="my-2 text-center text-lg font-bold">
-                      {watchlist.movie.title}
+                      {getShortMovieTitle(watchlist.movie.title)}
+                    </div>
+                    <div className="mt-1 mb-2">
+                      <ReviewStars rating={watchlist.movie.friendRating} />
                     </div>
                   </div>
                 </Link>
@@ -62,7 +79,10 @@ const WatchlistMovies = ({
                   />
                   <div className="flex h-fit w-full flex-col items-center justify-between">
                     <div className="my-2 text-center text-lg font-bold">
-                      {watchlist.movie.title}
+                      {getShortMovieTitle(watchlist.movie.title)}
+                    </div>
+                    <div className="mt-1 mb-2">
+                      <ReviewStars rating={watchlist.movie.friendRating} />
                     </div>
                   </div>
                 </Link>

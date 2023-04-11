@@ -10,6 +10,7 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import Link from "next/link";
 import ReviewStars from "~/components/ReviewStars";
+import ErrorComponent from "./ErrorComponent";
 
 const WatchedMovies = ({
   userId,
@@ -26,7 +27,8 @@ const WatchedMovies = ({
 
   if (isLoadingUser) return <LoadingPage />;
 
-  if (!user) return <div>Something went wrong. Try again.</div>;
+  if (!user)
+    return <ErrorComponent name="Error" details="Couldn't load user" />;
 
   const getUserRating = (movieId: string) => {
     let result = 0;
@@ -36,6 +38,12 @@ const WatchedMovies = ({
         result = rating.rating;
     });
     return result;
+  };
+
+  const getShortMovieTitle = (title: string) => {
+    const maxLength = 12;
+    if (title.length > maxLength) return title.substring(0, maxLength) + "...";
+    return title;
   };
 
   return (
@@ -57,7 +65,7 @@ const WatchedMovies = ({
                   />
                   <div className="flex h-fit w-full flex-col items-center justify-between">
                     <div className="my-2 text-center text-lg font-bold">
-                      {watched.movie.title}
+                      {getShortMovieTitle(watched.movie.title)}
                     </div>
                     <div className="mt-1 mb-2">
                       <span className="mb-1 flex justify-center text-xs">
