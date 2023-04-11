@@ -62,11 +62,17 @@ const MyProfile = () => {
         <Navbar />
         <div className="mx-4 flex flex-col items-center justify-center pb-2">
           <div className="m-2 mt-5 flex w-[50%] items-center justify-center">
-            <img
-              className="rounded-full border-4 border-gray-400"
-              src={user.image ?? placeholderProfilePic.src}
-              alt="Profile Pic"
-            />
+            <object
+              className="w-1/12 rounded-full border-4 border-gray-400"
+              data={placeholderProfilePic.src}
+              type="image/jpg"
+            >
+              <img
+                className="rounded-full border-4 border-gray-400"
+                src={user.image ?? placeholderProfilePic.src}
+                alt=""
+              />
+            </object>
           </div>
           <div className="text-2xl">{user.name}</div>
           <div className="mt-2 flex w-[55%] items-center justify-around text-xs">

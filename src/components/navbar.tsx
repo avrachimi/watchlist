@@ -21,7 +21,10 @@ export const Navbar = ({ query = "" }: Props) => {
           <Image src={logo} width={24} height={24} alt="Logo" />
         </Link>
       </div>
-      <form className="w-4/6" action={`/search/${searchQuery}`}>
+      <form
+        className="w-4/6"
+        action={`/search/${encodeURIComponent(searchQuery)}`}
+      >
         <div className="relative">
           <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
             <svg
@@ -96,15 +99,14 @@ export const Navbar = ({ query = "" }: Props) => {
           <Link href={"/"} className="px-2">
             Home
           </Link>
-          <Link href={"/account"} className="px-4">
-            {/* <Image
-              src={sessionData?.user.image ?? ""}
-              className="rounded border"
-              width={56}
-              height={56}
-              alt="Account"
-            /> */}
-            Account
+          <Link href={"/watchlist"} className="px-4">
+            Watchlist
+          </Link>
+          <Link href={"/friends"} className="px-4">
+            Friends
+          </Link>
+          <Link href={"/profile"} className="px-4">
+            Profile
           </Link>
         </div>
       </div>

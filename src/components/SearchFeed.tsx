@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { api } from "~/utils/api";
+import ErrorComponent from "./ErrorComponent";
 import { LoadingPage } from "./loading";
 
 export const SearchFeed = ({ query }: { query: string }) => {
@@ -8,7 +9,13 @@ export const SearchFeed = ({ query }: { query: string }) => {
 
   if (moviesLoading) return <LoadingPage />;
 
-  if (!movies) return <div>Something went wrong {}</div>;
+  if (!movies)
+    return (
+      <ErrorComponent
+        name="Search Error"
+        details="Couldn't find movies with this search term. Try something else."
+      />
+    );
 
   return (
     <div className="">

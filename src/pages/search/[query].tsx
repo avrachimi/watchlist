@@ -4,6 +4,7 @@ import { signIn, signOut, useSession } from "next-auth/react";
 import { Navbar } from "~/components/navbar";
 import { useRouter } from "next/router";
 import { SearchFeed } from "~/components/SearchFeed";
+import ErrorPage from "~/components/ErrorPage";
 
 const Search = () => {
   const { data: sessionData } = useSession();
@@ -23,8 +24,12 @@ const Search = () => {
     );
   }
   if (typeof query !== "string")
-    return <div>Something went wrong. Try again</div>;
-
+    return (
+      <ErrorPage
+        name="Search Error"
+        details="Something went wrong. Try again."
+      />
+    );
   return (
     <>
       <Head>
