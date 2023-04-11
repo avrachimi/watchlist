@@ -159,8 +159,8 @@ const SingleMovie = () => {
     };
 
     return (
-      <div className="rounded-lg border">
-        <div className="p-2 text-center text-xl">Write a review</div>
+      <div className="rounded-lg border-4 border-slate-200 bg-gray-900 p-2 shadow-md shadow-slate-600">
+        <div className="p-2 text-center text-xl">Write review</div>
         <form
           className="flex flex-col items-center justify-center gap-2 p-2"
           onSubmit={(e) => {
@@ -210,7 +210,7 @@ const SingleMovie = () => {
                 -
               </button>
               <input
-                className="w-28 rounded-md bg-gray-900 text-center text-6xl"
+                className="w-28 rounded-md bg-gray-900 text-center text-6xl text-gray-200"
                 id="rating"
                 name="rating"
                 type="number"
@@ -234,12 +234,13 @@ const SingleMovie = () => {
               <ReviewStars rating={rating} />
             </div>
             <textarea
-              className="w-full rounded-md text-black"
               id="review"
               name="review"
+              className="row-span-4 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
               value={review}
               onChange={(e) => setReview(e.target.value)}
-            />
+              placeholder="Write your thoughts here..."
+            ></textarea>
           </div>
           {errorRating?.data?.zodError?.fieldErrors.rating && (
             <span className="mb-8 text-red-500">
@@ -252,10 +253,10 @@ const SingleMovie = () => {
             </span>
           )}
           <button
-            className="m-2 w-fit rounded-lg border bg-gray-600 px-2 py-1"
+            className="m-2 w-fit rounded-lg border-2 bg-gray-600 px-3 py-1 text-lg"
             type="submit"
           >
-            Post Review
+            POST
           </button>
         </form>
       </div>
