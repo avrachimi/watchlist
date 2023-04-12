@@ -52,8 +52,8 @@ export const Feed = () => {
 
   if (isLoading) return <LoadingPage />;
 
-  if (!data) return <div>Something went wrong</div>;
-  if (data.length === 0)
+  if (!allMovieData) return <div>Something went wrong</div>;
+  if (allMovieData.length === 0)
     return (
       <div className="m-5 mt-10 flex flex-col items-center justify-center rounded-lg border-2 p-4 text-center text-xl">
         No movies added to database.
