@@ -96,6 +96,9 @@ const Profile = () => {
             />
           </div>
           <div className="text-2xl">{user.name}</div>
+          <div className="text-xs text-gray-400">
+            Last active {dayjs(user.updatedAt).fromNow()}
+          </div>
           <div className="mt-2 flex w-[55%] items-center justify-around text-xs">
             <div className="flex w-full justify-center border-r">
               {moviesWatchedCount} movies

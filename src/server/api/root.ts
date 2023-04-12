@@ -5,6 +5,7 @@ import { ratingRouter } from "./routers/ratings";
 import { userRouter } from "./routers/users";
 import { watchedRouter } from "./routers/watched";
 import { watchlistRouter } from "./routers/watchlist";
+import { postRouter } from "./routers/posts";
 
 /**
  * This is the primary router for your server.
@@ -18,6 +19,7 @@ export const appRouter = createTRPCRouter({
   external: externalRouter,
   user: userRouter,
   watchlist: watchlistRouter,
+  post: postRouter,
 });
 
 // export type definition of API

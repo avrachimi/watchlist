@@ -77,6 +77,9 @@ export const Navbar = ({ query = "" }: Props) => {
                     <Link href={`/`}>Home</Link>
                   </li>
                   <li>
+                    <Link href={`/posts`}>Posts</Link>
+                  </li>
+                  <li>
                     <Link href={`/watchlist`}>Watchlist</Link>
                   </li>
                   <li>
@@ -104,6 +107,9 @@ export const Navbar = ({ query = "" }: Props) => {
         <div className="hidden xl:block">
           <Link href={"/"} className="px-2">
             Home
+          </Link>
+          <Link href={"/posts"} className="px-4">
+            Posts
           </Link>
           <Link href={"/watchlist"} className="px-4">
             Watchlist
