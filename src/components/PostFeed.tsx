@@ -8,7 +8,7 @@ import placeholderProfilePic from "../../public/profile.jpg";
 import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import toast from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 
 dayjs.extend(relativeTime);
 
@@ -271,11 +271,13 @@ const PostBlock = ({ postId, userId }: { postId: string; userId: string }) => {
   };
 
   return (
-    <div
-      key={post.id}
-      className="my-2 flex w-full flex-col justify-center rounded-md border-2 border-gray-400 p-3"
-    >
-      <Link href={`/posts/${post.id}`}>
+    <>
+      <Toaster position="top-center" reverseOrder={false} />
+
+      <div
+        key={post.id}
+        className="my-2 flex w-full flex-col justify-center rounded-md border-2 border-gray-400 p-3"
+      >
         <div className="flex w-full items-center justify-between">
           <div className="flex items-center">
             <div className="w-7 items-center justify-center">
@@ -291,76 +293,78 @@ const PostBlock = ({ postId, userId }: { postId: string; userId: string }) => {
           </div>
           {/* <div className="flex items-center justify-center">Delete</div> */}
         </div>
-        <div className="text-md my-2 mx-2">{post.content}</div>
-      </Link>
-      <div className="flex w-full items-center justify-between justify-self-start px-2 pb-2 text-xs">
-        <div className="text-gray-400">{dayjs(post.createdAt).fromNow()}</div>
+        <Link href={`/posts/${post.id}`}>
+          <div className="text-md my-2 mx-2">{post.content}</div>
+        </Link>
+        <div className="flex w-full items-center justify-between justify-self-start px-2 pb-2 text-xs">
+          <div className="text-gray-400">{dayjs(post.createdAt).fromNow()}</div>
 
-        {!refreshLikes && (
-          <div className="flex items-center text-xs">
-            <div>
-              {commentCount} comments • {likeCount} likes
+          {!refreshLikes && (
+            <div className="flex items-center text-xs">
+              <Link href={`/posts/${post.id}`}>
+                {commentCount} comments • {likeCount} likes
+              </Link>
+              <div className="ml-3 cursor-pointer" onClick={() => toggleLike()}>
+                {isLiked && <AiFillHeart size={22} />}
+                {!isLiked && <AiOutlineHeart size={22} />}
+              </div>
             </div>
-            <div className="ml-3 cursor-pointer" onClick={() => toggleLike()}>
-              {isLiked && <AiFillHeart size={22} />}
-              {!isLiked && <AiOutlineHeart size={22} />}
-            </div>
-          </div>
-        )}
-      </div>
-      {!refreshComments && <Comments postId={postId} />}
-      <div className="m-2 border-t-2 border-slate-200 bg-gray-900 p-2">
-        <div className="flex w-full flex-col">
-          <input
-            placeholder="Comment something..."
-            className="grow bg-transparent text-sm outline-none placeholder:text-gray-400"
-            value={commentContent}
-            onChange={(e) => setCommentContent(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                if (commentContent !== "") {
-                  if (sessionData)
+          )}
+        </div>
+        {!refreshComments && <Comments postId={postId} />}
+        <div className="m-2 border-t-2 border-slate-200 bg-gray-900 p-2">
+          <div className="flex w-full flex-col">
+            <input
+              placeholder="Comment something..."
+              className="grow bg-transparent text-sm outline-none placeholder:text-gray-400"
+              value={commentContent}
+              onChange={(e) => setCommentContent(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  if (commentContent !== "") {
+                    if (sessionData)
+                      createComment({
+                        userId: sessionData.user.id,
+                        postId: post.id,
+                        content: commentContent,
+                      });
+                  }
+                }
+              }}
+              disabled={isCommenting}
+            />
+            {commentContent !== "" && !isCommenting && (
+              <div className="flex w-full justify-center">
+                <button
+                  className="w-fit rounded-md border-2 px-2"
+                  onClick={() =>
                     createComment({
                       userId: sessionData.user.id,
                       postId: post.id,
                       content: commentContent,
-                    });
-                }
-              }
-            }}
-            disabled={isCommenting}
-          />
-          {commentContent !== "" && !isCommenting && (
-            <div className="flex w-full justify-center">
-              <button
-                className="w-fit rounded-md border-2 px-2"
-                onClick={() =>
-                  createComment({
-                    userId: sessionData.user.id,
-                    postId: post.id,
-                    content: commentContent,
-                  })
-                }
-                disabled={isCommenting}
-              >
-                Comment
-              </button>
-            </div>
-          )}
-          {isCommenting && (
-            <div className="flex items-center justify-center">
-              <LoadingSpinner size={20} />
-            </div>
-          )}
+                    })
+                  }
+                  disabled={isCommenting}
+                >
+                  Comment
+                </button>
+              </div>
+            )}
+            {isCommenting && (
+              <div className="flex items-center justify-center">
+                <LoadingSpinner size={20} />
+              </div>
+            )}
+          </div>
         </div>
+        {commentCount > 3 && (
+          <div className="flex cursor-pointer items-center justify-center text-xs text-blue-400 underline">
+            <Link href={`/posts/${post.id}`}>More comments...</Link>
+          </div>
+        )}
       </div>
-      {commentCount > 3 && (
-        <div className="flex cursor-pointer items-center justify-center text-xs text-blue-400 underline">
-          <Link href={`/posts/${post.id}`}>More comments...</Link>
-        </div>
-      )}
-    </div>
+    </>
   );
 };
 

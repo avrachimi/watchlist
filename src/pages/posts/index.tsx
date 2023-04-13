@@ -2,7 +2,7 @@ import { NextPage } from "next";
 import { signIn, useSession } from "next-auth/react";
 import Head from "next/head";
 import React, { useEffect, useState } from "react";
-import toast from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import { PostFeed } from "~/components/PostFeed";
 import { LoadingSpinner } from "~/components/loading";
 import { Navbar } from "~/components/navbar";
@@ -41,7 +41,7 @@ const Posts = () => {
     return (
       <div className="flex h-screen w-full flex-col items-center justify-center bg-gray-900">
         <button
-          className="rounded-xl bg-white/10 px-10 py-3 font-semibold text-white no-underline transition hover:bg-white/20"
+          className="rounded-xl bg-white/10 px-10 py-3 font-semibold text-white no-underline transition hover:bg-white"
           onClick={() => void signIn()}
         >
           Sign in
@@ -51,6 +51,7 @@ const Posts = () => {
   }
   return (
     <>
+      <Toaster position="top-center" reverseOrder={false} />
       <Head>
         <title>Watchlist</title>
         <meta name="description" content="Movie and tv show recommendations" />
