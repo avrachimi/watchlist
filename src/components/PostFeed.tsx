@@ -23,31 +23,34 @@ const Comments = ({ postId }: { postId: string }) => {
     <div>
       {comments && comments.length > 0 ? (
         <div className="border-t pt-2">
-          {comments.map((comment) => (
-            <div
-              className="my-2 flex w-full flex-col text-xs text-gray-400"
-              key={comment.id}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <div className="m-1 ml-0 flex w-5 items-center justify-center">
-                    <img
-                      className="rounded-full border-gray-400"
-                      src={comment.user.image ?? placeholderProfilePic.src}
-                      alt="Profile Pic"
-                    />
-                  </div>
-                  <Link href={`/profile/${comment.userId}`}>
-                    <div>{comment.user.name}</div>
-                  </Link>
-                </div>
+          {comments
+            .slice(0)
+            .reverse()
+            .map((comment) => (
+              <div
+                className="my-2 flex w-full flex-col text-xs text-gray-400"
+                key={comment.id}
+              >
                 <div className="flex items-center justify-between">
-                  <div>{dayjs(comment.createdAt).fromNow()}</div>
+                  <div className="flex items-center">
+                    <div className="m-1 ml-0 flex w-5 items-center justify-center">
+                      <img
+                        className="rounded-full border-gray-400"
+                        src={comment.user.image ?? placeholderProfilePic.src}
+                        alt="Profile Pic"
+                      />
+                    </div>
+                    <Link href={`/profile/${comment.userId}`}>
+                      <div>{comment.user.name}</div>
+                    </Link>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>{dayjs(comment.createdAt).fromNow()}</div>
+                  </div>
                 </div>
+                <div className="ml-6 mr-2">{comment.content}</div>
               </div>
-              <div className="ml-6 mr-2">{comment.content}</div>
-            </div>
-          ))}
+            ))}
         </div>
       ) : comments?.length === 0 ? null : (
         <div className="flex items-center justify-center">
@@ -119,6 +122,7 @@ const PostBlock = ({ postId, userId }: { postId: string; userId: string }) => {
   } = api.postComment.create.useMutation({
     onSuccess: () => {
       setRefreshComments(false);
+      setCommentCount((prev) => prev + 1);
       setCommentContent("");
       toast.success("Commented on post");
     },

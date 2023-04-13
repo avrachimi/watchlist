@@ -13,9 +13,6 @@ export const postCommentRouter = createTRPCRouter({
         user: true,
         post: true,
       },
-      orderBy: {
-        createdAt: "desc",
-      },
     });
   }),
 
@@ -35,7 +32,7 @@ export const postCommentRouter = createTRPCRouter({
           post: true,
         },
         orderBy: {
-          createdAt: "desc",
+          createdAt: "asc",
         },
       });
     }),
