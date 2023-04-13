@@ -4,6 +4,7 @@ import Head from "next/head";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { PostFeed } from "~/components/PostFeed";
+import { LoadingSpinner } from "~/components/loading";
 import { Navbar } from "~/components/navbar";
 import { api } from "~/utils/api";
 
@@ -11,22 +12,25 @@ const Posts: NextPage = () => {
   const { data: sessionData } = useSession();
   const [postContent, setPostContent] = useState("");
   const [refreshPosts, setRefreshPosts] = useState(false);
-  const { mutate: createPost, error: errorCreatingPost } =
-    api.post.create.useMutation({
-      onSuccess: () => {
-        setPostContent("");
-        setRefreshPosts((prev) => !prev);
-        toast.success("Created new post");
-      },
-      onError: (e) => {
-        const errorMessage = e.data?.zodError?.fieldErrors.content;
-        if (errorMessage && errorMessage[0]) {
-          toast.error(errorMessage[0]);
-        } else {
-          toast.error("Failed to post. Please try again.");
-        }
-      },
-    });
+  const {
+    mutate: createPost,
+    error: errorCreatingPost,
+    isLoading: isPosting,
+  } = api.post.create.useMutation({
+    onSuccess: () => {
+      setPostContent("");
+      setRefreshPosts((prev) => !prev);
+      toast.success("Created new post");
+    },
+    onError: (e) => {
+      const errorMessage = e.data?.zodError?.fieldErrors.content;
+      if (errorMessage && errorMessage[0]) {
+        toast.error(errorMessage[0]);
+      } else {
+        toast.error("Failed to post. Please try again.");
+      }
+    },
+  });
 
   useEffect(() => {
     //const { data } = api.post.getAll.useQuery();
@@ -54,35 +58,51 @@ const Posts: NextPage = () => {
       </Head>
       <main className="min-w-screen min-h-screen bg-gray-900 pb-5">
         <Navbar />
-        <div className="m-3 rounded-lg border-4 border-slate-200 bg-gray-900 p-2">
-          <form
-            className="flex flex-col items-center justify-center gap-2 p-2"
-            onSubmit={(e) => {
-              e.preventDefault();
-              createPost({
-                userId: sessionData.user.id,
-                content: postContent,
-              });
-            }}
-          >
+        <div className="">
+          <div className="m-3 border-b-2 border-slate-200 bg-gray-900 p-2">
             <div className="flex w-full flex-col">
               <div className="my-1 flex items-center justify-center"></div>
-              <textarea
-                id="review"
-                name="review"
-                className="row-span-4 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+              <input
+                placeholder="Type something to post..."
+                className="grow bg-transparent outline-none"
                 value={postContent}
                 onChange={(e) => setPostContent(e.target.value)}
-                placeholder="Write your thoughts here..."
-              ></textarea>
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    if (postContent !== "") {
+                      createPost({
+                        userId: sessionData.user.id,
+                        content: postContent,
+                      });
+                    }
+                  }
+                }}
+                disabled={isPosting}
+              />
+              {postContent !== "" && !isPosting && (
+                <div className="flex w-full justify-center">
+                  <button
+                    className="w-fit rounded-md border-2 px-2"
+                    onClick={() =>
+                      createPost({
+                        userId: sessionData.user.id,
+                        content: postContent,
+                      })
+                    }
+                    disabled={isPosting}
+                  >
+                    Post
+                  </button>
+                </div>
+              )}
+              {isPosting && (
+                <div className="flex items-center justify-center">
+                  <LoadingSpinner size={20} />
+                </div>
+              )}
             </div>
-            <button
-              className="m-2 w-fit rounded-lg border-2 bg-gray-600 px-3 py-1 text-lg"
-              type="submit"
-            >
-              POST
-            </button>
-          </form>
+          </div>
         </div>
         {!refreshPosts && <PostFeed />}
       </main>
