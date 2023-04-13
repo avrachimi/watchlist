@@ -98,15 +98,52 @@ const LikeComponent = ({
   );
 };
 
-const PostBlock = ({ postId, userId }: { postId: string; userId: string }) => {
-  const { data: post, isLoading: postLoading } = api.post.getById.useQuery({
-    id: postId,
-  });
+const Comments = ({ postId }: { postId: string }) => {
   const { data: comments, isLoading: commentsLoading } =
     api.postComment.getLatestCommentsbyPostId.useQuery({
       postId: postId,
       amount: 3,
     });
+
+  return (
+    <div>
+      {comments && comments.length > 0 ? (
+        <div className="border-t pt-2">
+          {comments.map((comment) => (
+            <div className="my-2 flex w-full flex-col text-xs text-gray-400">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className="m-1 ml-0 flex w-5 items-center justify-center">
+                    <img
+                      className="rounded-full border-gray-400"
+                      src={comment.user.image ?? placeholderProfilePic.src}
+                      alt="Profile Pic"
+                    />
+                  </div>
+                  <div>{comment.user.name}</div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>{dayjs(comment.createdAt).fromNow()}</div>
+                </div>
+              </div>
+              <div className="ml-6 mr-2">{comment.content}</div>
+            </div>
+          ))}
+        </div>
+      ) : comments?.length === 0 ? null : (
+        <div className="flex items-center justify-center">
+          <LoadingSpinner />
+        </div>
+      )}
+    </div>
+  );
+};
+
+const PostBlock = ({ postId, userId }: { postId: string; userId: string }) => {
+  const { data: sessionData } = useSession();
+  const { data: post, isLoading: postLoading } = api.post.getById.useQuery({
+    id: postId,
+  });
   const { data: like, isLoading: likeLoading } =
     api.postLike.getByPostIdAndUserId.useQuery({
       postId: postId,
@@ -152,9 +189,35 @@ const PostBlock = ({ postId, userId }: { postId: string; userId: string }) => {
       },
     });
 
+  const [refreshComments, setRefreshComments] = useState(false);
+  const [commentContent, setCommentContent] = useState("");
+  const {
+    mutate: createComment,
+    error: errorCreatingComment,
+    isLoading: isCommenting,
+  } = api.postComment.create.useMutation({
+    onSuccess: () => {
+      setRefreshComments((prev) => !prev);
+      setCommentContent("");
+      toast.success("Commented on post");
+    },
+    onError: (e) => {
+      const errorMessage = e.data?.zodError?.fieldErrors.content;
+      if (errorMessage && errorMessage[0]) {
+        toast.error(errorMessage[0]);
+      } else {
+        toast.error("Failed to comment on post. Please try again.");
+      }
+    },
+  });
+
   useEffect(() => {
     setRefreshLikes(false);
   }, [refreshLikes]);
+
+  useEffect(() => {
+    setRefreshComments(false);
+  }, [isCommenting]);
 
   useEffect(() => {
     setLikeCount(post?.PostLike.length ?? 0);
@@ -228,37 +291,55 @@ const PostBlock = ({ postId, userId }: { postId: string; userId: string }) => {
           </div>
         )}
       </div>
-      {comments && comments.length > 0 ? (
-        <div className="border-t pt-2">
-          {comments.map((comment) => (
-            <div className="my-2 flex w-full flex-col text-xs text-gray-400">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <div className="m-1 ml-0 flex w-5 items-center justify-center">
-                    <img
-                      className="rounded-full border-gray-400"
-                      src={comment.user.image ?? placeholderProfilePic.src}
-                      alt="Profile Pic"
-                    />
-                  </div>
-                  <div>{comment.user.name}</div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div>{dayjs(comment.createdAt).fromNow()}</div>
-                </div>
-              </div>
-              <div className="ml-6 mr-2">{comment.content}</div>
+      {!refreshComments && <Comments postId={postId} />}
+      <div className="m-2 border-t-2 border-slate-200 bg-gray-900 p-2">
+        <div className="flex w-full flex-col">
+          <input
+            placeholder="Comment something..."
+            className="grow bg-transparent text-sm outline-none placeholder:text-gray-400"
+            value={commentContent}
+            onChange={(e) => setCommentContent(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                if (commentContent !== "") {
+                  createComment({
+                    userId: post.userId,
+                    postId: post.id,
+                    content: commentContent,
+                  });
+                }
+              }
+            }}
+            disabled={isCommenting}
+          />
+          {commentContent !== "" && !isCommenting && (
+            <div className="flex w-full justify-center">
+              <button
+                className="w-fit rounded-md border-2 px-2"
+                onClick={() =>
+                  createComment({
+                    userId: post.userId,
+                    postId: post.id,
+                    content: commentContent,
+                  })
+                }
+                disabled={isCommenting}
+              >
+                Comment
+              </button>
             </div>
-          ))}
-          {commentCount > comments.length && (
-            <div className="flex cursor-pointer items-center justify-center text-xs text-blue-400 underline">
-              <Link href={`/posts/${post.id}`}>More comments...</Link>
+          )}
+          {isCommenting && (
+            <div className="flex items-center justify-center">
+              <LoadingSpinner size={20} />
             </div>
           )}
         </div>
-      ) : comments?.length === 0 ? null : (
-        <div className="flex items-center justify-center">
-          <LoadingSpinner />
+      </div>
+      {commentCount > 3 && (
+        <div className="flex cursor-pointer items-center justify-center text-xs text-blue-400 underline">
+          <Link href={`/posts/${post.id}`}>More comments...</Link>
         </div>
       )}
     </div>

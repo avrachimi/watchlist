@@ -8,29 +8,88 @@ import { api } from "~/utils/api";
 
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { LoadingPage } from "~/components/loading";
+import { LoadingPage, LoadingSpinner } from "~/components/loading";
 import ErrorPage from "~/components/ErrorPage";
 import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import placeholderProfilePic from "../../../public/profile.jpg";
 import Link from "next/link";
+import toast from "react-hot-toast";
 
 dayjs.extend(relativeTime);
 
+const Comments = ({ postId }: { postId: string }) => {
+  const { data: comments, isLoading: commentsLoading } =
+    api.postComment.getAllByPostId.useQuery({
+      postId: postId,
+    });
+
+  if (commentsLoading) return <LoadingSpinner />;
+
+  if (!comments) return null;
+
+  return (
+    <div>
+      {comments && comments.length > 0 ? (
+        <div className="mx-5 border-t pt-2">
+          {comments.map((comment) => (
+            <div className="my-2 flex w-full flex-col text-xs text-gray-400">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className="m-1 ml-0 flex w-5 items-center justify-center">
+                    <img
+                      className="rounded-full border-gray-400"
+                      src={comment.user.image ?? placeholderProfilePic.src}
+                      alt="Profile Pic"
+                    />
+                  </div>
+                  <div>{comment.user.name}</div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>{dayjs(comment.createdAt).fromNow()}</div>
+                </div>
+              </div>
+              <div className="ml-6 mr-2">{comment.content}</div>
+            </div>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+};
+
 function SinglePost() {
   const { data: sessionData } = useSession();
-  const { mutate: createComment, error: errorCreatingComment } =
-    api.postComment.create.useMutation();
+  const [refreshComments, setRefreshComments] = useState(false);
+  const {
+    mutate: createComment,
+    error: errorCreatingComment,
+    isLoading: isCommenting,
+  } = api.postComment.create.useMutation({
+    onSuccess: () => {
+      setRefreshComments((prev) => !prev);
+      setCommentContent("");
+      toast.success("Commented on post");
+    },
+    onError: (e) => {
+      const errorMessage = e.data?.zodError?.fieldErrors.content;
+      if (errorMessage && errorMessage[0]) {
+        toast.error(errorMessage[0]);
+      } else {
+        toast.error("Failed to comment on post. Please try again.");
+      }
+    },
+  });
   const router = useRouter();
   let { id } = router.query;
   id = typeof id === "string" ? id : "";
   const { data: post, isLoading: isPostLoading } = api.post.getById.useQuery({
     id: id,
   });
-  const { data: comments, isLoading: commentsLoading } =
-    api.postComment.getAllByPostId.useQuery({
-      postId: id,
-    });
   const [commentContent, setCommentContent] = useState("");
+
+  useEffect(() => {
+    setRefreshComments(false);
+  }, [isCommenting]);
 
   if (isPostLoading) return <LoadingPage />;
 
@@ -63,7 +122,7 @@ function SinglePost() {
       </Head>
       <main className="min-w-screen min-h-screen bg-gray-900 pb-5">
         <Navbar />
-        <div className="flex flex-col justify-center p-2 px-5">
+        <div className="mt-5 flex flex-col justify-center p-2 px-5">
           <div className="flex w-full items-center justify-between">
             <div className="flex items-center">
               <div className="w-7 items-center justify-center">
@@ -98,65 +157,52 @@ function SinglePost() {
             </div>
           </div>
         </div>
-        {comments && comments.length > 0 ? (
-          <div className="mx-5 border-t pt-2">
-            {comments.map((comment) => (
-              <div className="my-2 flex w-full flex-col text-xs text-gray-400">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <div className="m-1 ml-0 flex w-5 items-center justify-center">
-                      <img
-                        className="rounded-full border-gray-400"
-                        src={comment.user.image ?? placeholderProfilePic.src}
-                        alt="Profile Pic"
-                      />
-                    </div>
-                    <div>{comment.user.name}</div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>{dayjs(comment.createdAt).fromNow()}</div>
-                  </div>
-                </div>
-                <div className="ml-6 mr-2">{comment.content}</div>
+        {!refreshComments && <Comments postId={post.id} />}
+        <div className="m-5 mt-10 border-t-2 border-slate-200 bg-gray-900 p-2">
+          <div className="flex w-full flex-col">
+            <div className="my-1 flex items-center justify-center"></div>
+            <input
+              placeholder="Comment something..."
+              className="grow bg-transparent outline-none"
+              value={commentContent}
+              onChange={(e) => setCommentContent(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  if (commentContent !== "") {
+                    createComment({
+                      userId: sessionData.user.id,
+                      postId: post.id,
+                      content: commentContent,
+                    });
+                  }
+                }
+              }}
+              disabled={isCommenting}
+            />
+            {commentContent !== "" && !isCommenting && (
+              <div className="flex w-full justify-center">
+                <button
+                  className="w-fit rounded-md border-2 px-2"
+                  onClick={() =>
+                    createComment({
+                      userId: sessionData.user.id,
+                      postId: post.id,
+                      content: commentContent,
+                    })
+                  }
+                  disabled={isCommenting}
+                >
+                  Comment
+                </button>
               </div>
-            ))}
+            )}
+            {isCommenting && (
+              <div className="flex items-center justify-center">
+                <LoadingSpinner size={20} />
+              </div>
+            )}
           </div>
-        ) : null}
-        <div className="m-3 mt-10 rounded-lg border-4 border-slate-200 bg-gray-900 p-2">
-          <form
-            className="flex flex-col items-center justify-center gap-2 p-2"
-            onSubmit={(e) => {
-              e.preventDefault();
-
-              createComment({
-                content: commentContent,
-                userId: sessionData.user.id,
-                postId: typeof id === "string" ? id : "",
-              });
-
-              if (!errorCreatingComment) {
-                setCommentContent("");
-              }
-            }}
-          >
-            <div className="flex w-full flex-col">
-              <div className="my-1 flex items-center justify-center"></div>
-              <textarea
-                id="comment"
-                name="comment"
-                className="row-span-4 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                value={commentContent}
-                onChange={(e) => setCommentContent(e.target.value)}
-                placeholder="Write your thoughts here..."
-              ></textarea>
-            </div>
-            <button
-              className="m-2 w-fit rounded-lg border-2 bg-gray-600 px-3 py-1 text-lg"
-              type="submit"
-            >
-              Comment
-            </button>
-          </form>
         </div>
       </main>
     </>
