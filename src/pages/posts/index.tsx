@@ -1,19 +1,36 @@
+import { NextPage } from "next";
 import { signIn, useSession } from "next-auth/react";
 import Head from "next/head";
 import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { PostFeed } from "~/components/PostFeed";
 import { Navbar } from "~/components/navbar";
 import { api } from "~/utils/api";
 
-function Posts() {
+const Posts: NextPage = () => {
   const { data: sessionData } = useSession();
-  const { mutate: createPost, error: errorCreatingPost } =
-    api.post.create.useMutation();
   const [postContent, setPostContent] = useState("");
   const [refreshPosts, setRefreshPosts] = useState(false);
+  const { mutate: createPost, error: errorCreatingPost } =
+    api.post.create.useMutation({
+      onSuccess: () => {
+        setPostContent("");
+        setRefreshPosts((prev) => !prev);
+        toast.success("Created new post");
+      },
+      onError: (e) => {
+        const errorMessage = e.data?.zodError?.fieldErrors.content;
+        if (errorMessage && errorMessage[0]) {
+          toast.error(errorMessage[0]);
+        } else {
+          toast.error("Failed to post. Please try again.");
+        }
+      },
+    });
 
   useEffect(() => {
     //const { data } = api.post.getAll.useQuery();
+    setRefreshPosts(false);
   }, [refreshPosts]);
 
   if (!sessionData?.user) {
@@ -46,11 +63,6 @@ function Posts() {
                 userId: sessionData.user.id,
                 content: postContent,
               });
-
-              if (!errorCreatingPost) {
-                setPostContent("");
-                setRefreshPosts((prev) => !prev);
-              }
             }}
           >
             <div className="flex w-full flex-col">
@@ -72,10 +84,10 @@ function Posts() {
             </button>
           </form>
         </div>
-        <PostFeed />
+        {!refreshPosts && <PostFeed />}
       </main>
     </>
   );
-}
+};
 
 export default Posts;
