@@ -154,9 +154,6 @@ export const PostFeed = () => {
       <div className="flex w-full justify-center">
         <div className="my-2 mx-3 w-full">
           <div className="flex flex-col items-center justify-center">
-            <div className="my-3 flex w-full justify-start border-b text-xl">
-              Posts
-            </div>
             <div className="w-full">
               {dbPosts ? (
                 dbPosts.map((post) => (
