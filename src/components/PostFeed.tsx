@@ -8,10 +8,97 @@ import placeholderProfilePic from "../../public/profile.jpg";
 import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import toast from "react-hot-toast";
 
 dayjs.extend(relativeTime);
 
-const PostBlock = ({ postId }: { postId: string }) => {
+const LikeComponent = ({
+  postId,
+  userId,
+  commentCount,
+  likeCount,
+}: {
+  postId: string;
+  userId: string;
+  commentCount: number;
+  likeCount: number;
+}) => {
+  const { data: like, isLoading: likeLoading } =
+    api.postLike.getByPostIdAndUserId.useQuery({
+      postId: postId,
+      userId: userId,
+    });
+
+  const { mutate: createLike, isLoading: isLiking } =
+    api.postLike.create.useMutation({
+      onSuccess: () => {
+        //setRefreshLikes((prev) => !prev);
+        likeCount += 1;
+        toast.success("Liked post");
+      },
+      onError: (e) => {
+        const errorMessage = e.data?.zodError?.fieldErrors.content;
+        if (errorMessage && errorMessage[0]) {
+          toast.error(errorMessage[0]);
+        } else {
+          toast.error("Failed to like post. Please try again.");
+        }
+      },
+    });
+  const { mutate: deleteLike, isLoading: isDeletingLike } =
+    api.postLike.delete.useMutation({
+      onSuccess: () => {
+        //setRefreshLikes((prev) => !prev);
+        likeCount -= 1;
+        toast.success("Removed like from post");
+      },
+      onError: (e) => {
+        const errorMessage = e.data?.zodError?.fieldErrors.content;
+        if (errorMessage && errorMessage[0]) {
+          toast.error(errorMessage[0]);
+        } else {
+          toast.error("Failed to like post. Please try again.");
+        }
+      },
+    });
+
+  if (likeLoading)
+    return (
+      <div className="flex h-full w-full items-center justify-center">
+        <LoadingSpinner />
+      </div>
+    );
+
+  if (!like) return null;
+
+  const toggleLike = () => {
+    if (like) {
+      deleteLike({
+        id: like.id,
+      });
+    } else {
+      createLike({
+        userId: userId,
+        postId: postId,
+      });
+    }
+    console.log("toggle like");
+  };
+
+  return (
+    <div className="flex items-center text-xs">
+      <div>
+        {commentCount} comments • {likeCount} likes
+      </div>
+      <div className="ml-3 cursor-pointer" onClick={() => toggleLike()}>
+        {like && <AiFillHeart size={20} />}
+        {!like && <AiOutlineHeart size={20} />}
+      </div>
+    </div>
+  );
+};
+
+const PostBlock = ({ postId, userId }: { postId: string; userId: string }) => {
   const { data: post, isLoading: postLoading } = api.post.getById.useQuery({
     id: postId,
   });
@@ -20,9 +107,65 @@ const PostBlock = ({ postId }: { postId: string }) => {
       postId: postId,
       amount: 3,
     });
-  const [postLikes, setPostLikes] = useState<string[]>([]);
+  const { data: like, isLoading: likeLoading } =
+    api.postLike.getByPostIdAndUserId.useQuery({
+      postId: postId,
+      userId: userId,
+    });
 
-  if (postLoading)
+  const [refreshLikes, setRefreshLikes] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
+
+  const { mutate: createLike, isLoading: isLiking } =
+    api.postLike.create.useMutation({
+      onSuccess: () => {
+        setRefreshLikes((prev) => !prev);
+        setIsLiked(true);
+        setLikeCount((prev) => prev + 1);
+        toast.success("Liked post");
+      },
+      onError: (e) => {
+        const errorMessage = e.data?.zodError?.fieldErrors.content;
+        if (errorMessage && errorMessage[0]) {
+          toast.error(errorMessage[0]);
+        } else {
+          toast.error("Failed to like post. Please try again.");
+        }
+      },
+    });
+  const { mutate: deleteLike, isLoading: isDeletingLike } =
+    api.postLike.delete.useMutation({
+      onSuccess: () => {
+        setRefreshLikes((prev) => !prev);
+        setIsLiked(false);
+        setLikeCount((prev) => prev - 1);
+        toast.success("Removed like from post");
+      },
+      onError: (e) => {
+        const errorMessage = e.data?.zodError?.fieldErrors.content;
+        if (errorMessage && errorMessage[0]) {
+          toast.error(errorMessage[0]);
+        } else {
+          toast.error("Failed to like post. Please try again.");
+        }
+      },
+    });
+
+  useEffect(() => {
+    setRefreshLikes(false);
+  }, [refreshLikes]);
+
+  useEffect(() => {
+    setLikeCount(post?.PostLike.length ?? 0);
+    let temp = false;
+    post?.PostLike.map((like) => {
+      if (like.userId === userId) temp = true;
+    });
+    setIsLiked(temp);
+  }, [postLoading]);
+
+  if (postLoading || likeLoading)
     return (
       <div className="flex h-full w-full items-center justify-center">
         <LoadingSpinner />
@@ -33,16 +176,18 @@ const PostBlock = ({ postId }: { postId: string }) => {
 
   const commentCount = post.PostComment.length;
 
-  const toggleLike = (postId: string) => {
-    if (postLikes.includes(postId)) {
-      let tempArray = postLikes;
-      const index = postLikes.indexOf(postId);
-      tempArray.splice(index, 1);
-      postLikes.length !== 1 ? setPostLikes(tempArray) : setPostLikes([]);
+  const toggleLike = () => {
+    if (isLiked) {
+      deleteLike({
+        id: like?.id ?? "",
+      });
     } else {
-      setPostLikes((prev) => [...prev, postId]);
+      createLike({
+        userId: userId,
+        postId: postId,
+      });
     }
-    console.log(postLikes);
+    console.log("toggle like");
   };
 
   return (
@@ -70,18 +215,18 @@ const PostBlock = ({ postId }: { postId: string }) => {
       </Link>
       <div className="flex w-full items-center justify-between justify-self-start pb-2 text-xs">
         <div className="text-gray-400">{dayjs(post.createdAt).fromNow()}</div>
-        <div className="flex items-center text-xs">
-          <div>
-            {post.PostComment.length} comments • {post.PostLike.length} likes
+
+        {!refreshLikes && (
+          <div className="flex items-center text-xs">
+            <div>
+              {post.PostComment.length} comments • {likeCount} likes
+            </div>
+            <div className="ml-3 cursor-pointer" onClick={() => toggleLike()}>
+              {isLiked && <AiFillHeart size={20} />}
+              {!isLiked && <AiOutlineHeart size={20} />}
+            </div>
           </div>
-          <div
-            className="ml-3 cursor-pointer"
-            onClick={() => toggleLike(post.id)}
-          >
-            {postLikes.includes(post.id) && <AiFillHeart size={20} />}
-            {!postLikes.includes(post.id) && <AiOutlineHeart size={20} />}
-          </div>
-        </div>
+        )}
       </div>
       {comments && comments.length > 0 ? (
         <div className="border-t pt-2">
@@ -157,7 +302,11 @@ export const PostFeed = () => {
             <div className="w-full">
               {dbPosts ? (
                 dbPosts.map((post) => (
-                  <PostBlock postId={post.id} key={post.id} />
+                  <PostBlock
+                    postId={post.id}
+                    userId={post.userId}
+                    key={post.id}
+                  />
                 ))
               ) : (
                 <div>No Posts</div>
