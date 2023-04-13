@@ -19,8 +19,10 @@ declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
       id: string;
+      updatedAt: Date;
       name: string;
       email: string;
+      emailVerified?: boolean;
       image: string;
       // ...other properties
       // role: UserRole;
@@ -54,7 +56,7 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: env.GOOGLE_CLIENT_ID,
       clientSecret: env.GOOGLE_CLIENT_SECRET,
-    })
+    }),
     /**
      * ...add more providers here.
      *

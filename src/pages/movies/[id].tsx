@@ -44,7 +44,6 @@ const SingleMovie = () => {
     api.rating.getByMovieId.useQuery({
       movieId: id,
     });
-  const { mutate: mutateFriendRating } = api.movie.updateRatings.useMutation();
   const [reviews, setReviews] = useState<ratingType[]>([]);
   const [reviewed, setReviewed] = useState(false);
   const [deletedReview, setDeletedReview] = useState(false);
@@ -100,7 +99,16 @@ const SingleMovie = () => {
     );
 
   if (!sessionData?.user) {
-    return NextResponse.redirect("https://watch.avrachimi.com");
+    return (
+      <div className="flex h-screen w-full flex-col items-center justify-center bg-gray-900">
+        <button
+          className="rounded-xl bg-white/10 px-10 py-3 font-semibold text-white no-underline transition hover:bg-white/20"
+          onClick={() => void signIn()}
+        >
+          Sign in
+        </button>
+      </div>
+    );
   }
 
   const markWatched = () => {

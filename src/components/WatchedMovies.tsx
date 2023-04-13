@@ -1,13 +1,5 @@
-import Head from "next/head";
-import { signIn, signOut, useSession } from "next-auth/react";
-
-import { Navbar } from "~/components/navbar";
-import { useRouter } from "next/router";
-import placeholderProfilePic from "../../../public/profile.jpg";
 import { api } from "~/utils/api";
 import { LoadingPage } from "~/components/loading";
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
 import Link from "next/link";
 import ReviewStars from "~/components/ReviewStars";
 import ErrorComponent from "./ErrorComponent";
