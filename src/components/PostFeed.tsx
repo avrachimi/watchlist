@@ -22,18 +22,15 @@ const Comments = ({ postId }: { postId: string }) => {
   return (
     <div>
       {comments && comments.length > 0 ? (
-        <div className="border-t pt-2">
+        <div className="my-1 flex h-full flex-col gap-2.5">
           {comments
             .slice(0)
             .reverse()
             .map((comment) => (
-              <div
-                className="my-2 flex w-full flex-col text-xs text-gray-400"
-                key={comment.id}
-              >
+              <div className="w-full text-xs text-gray-400" key={comment.id}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
-                    <div className="m-1 ml-0 flex w-5 items-center justify-center">
+                    <div className="mr-1 flex w-5 items-center justify-center">
                       <img
                         className="rounded-full border-gray-400"
                         src={comment.user.image ?? placeholderProfilePic.src}
@@ -223,60 +220,63 @@ const PostBlock = ({ postId, userId }: { postId: string; userId: string }) => {
             </div>
           )}
         </div>
-        {!refreshComments && <Comments postId={postId} />}
-        <div className="m-2 border-t-2 border-slate-200 bg-gray-900 p-2">
-          <div className="flex w-full flex-col">
-            <input
-              placeholder="Comment something..."
-              className="grow bg-transparent text-sm outline-none placeholder:text-gray-400"
-              value={commentContent}
-              onChange={(e) => setCommentContent(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  if (commentContent !== "") {
-                    if (sessionData)
+        <div className="flex flex-col justify-center border-slate-200 bg-gray-900">
+          {commentCount > 0 && <div className=" mb-2 border-t-2"></div>}
+          {commentCount > 3 && (
+            <div className="flex cursor-pointer items-center justify-center text-xs text-blue-400 underline ">
+              <Link href={`/posts/${post.id}`}>view older comments...</Link>
+            </div>
+          )}
+          {!refreshComments && <Comments postId={postId} />}
+          <div className="mt-1 border-t border-slate-400 bg-gray-900 p-2">
+            <div className="flex w-full flex-col">
+              <input
+                placeholder="Comment something..."
+                className="grow bg-transparent text-sm outline-none placeholder:text-gray-400"
+                value={commentContent}
+                onChange={(e) => setCommentContent(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    if (commentContent !== "") {
+                      if (sessionData)
+                        createComment({
+                          userId: sessionData.user.id,
+                          postId: post.id,
+                          content: commentContent,
+                        });
+                      setRefreshComments(true);
+                    }
+                  }
+                }}
+                disabled={isCommenting}
+              />
+              {commentContent !== "" && !isCommenting && (
+                <div className="flex w-full justify-center">
+                  <button
+                    className="w-fit rounded-md border-2 px-2"
+                    onClick={() => {
                       createComment({
                         userId: sessionData.user.id,
                         postId: post.id,
                         content: commentContent,
                       });
-                    setRefreshComments(true);
-                  }
-                }
-              }}
-              disabled={isCommenting}
-            />
-            {commentContent !== "" && !isCommenting && (
-              <div className="flex w-full justify-center">
-                <button
-                  className="w-fit rounded-md border-2 px-2"
-                  onClick={() => {
-                    createComment({
-                      userId: sessionData.user.id,
-                      postId: post.id,
-                      content: commentContent,
-                    });
-                    setRefreshComments(true);
-                  }}
-                  disabled={isCommenting}
-                >
-                  Comment
-                </button>
-              </div>
-            )}
-            {isCommenting && (
-              <div className="flex items-center justify-center">
-                <LoadingSpinner size={20} />
-              </div>
-            )}
+                      setRefreshComments(true);
+                    }}
+                    disabled={isCommenting}
+                  >
+                    Comment
+                  </button>
+                </div>
+              )}
+              {isCommenting && (
+                <div className="flex items-center justify-center">
+                  <LoadingSpinner size={20} />
+                </div>
+              )}
+            </div>
           </div>
         </div>
-        {commentCount > 3 && (
-          <div className="flex cursor-pointer items-center justify-center text-xs text-blue-400 underline">
-            <Link href={`/posts/${post.id}`}>More comments...</Link>
-          </div>
-        )}
       </div>
     </>
   );
