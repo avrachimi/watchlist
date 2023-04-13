@@ -43,7 +43,7 @@ const Comments = ({
     isLoading: isDeletingComment,
   } = api.postComment.delete.useMutation({
     onSuccess: () => {
-      setRefreshComments((prev) => !prev);
+      setRefreshComments(false);
       setCommentCount((prev) => prev - 1);
       toast.success("Comment deleted.");
     },
@@ -94,7 +94,10 @@ const Comments = ({
                 {comment.userId === sessionData.user.id && (
                   <div
                     className="cursor-pointer rounded-md border-2 border-gray-400 bg-red-600 bg-opacity-70 p-1"
-                    onClick={() => deleteComment({ id: comment.id })}
+                    onClick={() => {
+                      deleteComment({ id: comment.id });
+                      setRefreshComments(true);
+                    }}
                   >
                     <AiFillDelete size={14} className="text-gray-200" />
                   </div>
@@ -117,7 +120,7 @@ const SinglePost: NextPage = () => {
     isLoading: isCommenting,
   } = api.postComment.create.useMutation({
     onSuccess: () => {
-      setRefreshComments((prev) => !prev);
+      setRefreshComments(false);
       setCommentContent("");
       setCommentCount((prev) => prev + 1);
       toast.success("Commented on post");
@@ -153,7 +156,7 @@ const SinglePost: NextPage = () => {
   const { mutate: createLike, isLoading: isLiking } =
     api.postLike.create.useMutation({
       onSuccess: () => {
-        setRefreshLikes((prev) => !prev);
+        setRefreshLikes(false);
         setIsLiked(true);
         setLikeCount((prev) => prev + 1);
         toast.success("Liked post");
@@ -170,7 +173,7 @@ const SinglePost: NextPage = () => {
   const { mutate: deleteLike, isLoading: isDeletingLike } =
     api.postLike.delete.useMutation({
       onSuccess: () => {
-        setRefreshLikes((prev) => !prev);
+        setRefreshLikes(false);
         setIsLiked(false);
         setLikeCount((prev) => prev - 1);
         toast.success("Removed like from post");
@@ -199,14 +202,6 @@ const SinglePost: NextPage = () => {
         }
       },
     });
-
-  useEffect(() => {
-    setRefreshComments(false);
-  }, [isCommenting, refreshComments]);
-
-  useEffect(() => {
-    setRefreshLikes(false);
-  }, [refreshLikes]);
 
   useEffect(() => {
     setLikeCount(post?.PostLike.length ?? 0);
@@ -241,12 +236,14 @@ const SinglePost: NextPage = () => {
       deleteLike({
         id: like?.id ?? "",
       });
+      setRefreshLikes(true);
     } else {
       if (sessionData)
         createLike({
           userId: sessionData.user.id,
           postId: postId,
         });
+      setRefreshLikes(true);
     }
     console.log("toggle like");
   };
@@ -300,7 +297,7 @@ const SinglePost: NextPage = () => {
                 {dayjs(post.createdAt).fromNow()}
               </div>
               <div className="flex items-center text-xs">
-                {!refreshLikes && (
+                {(!refreshLikes || !refreshComments) && (
                   <div className="flex items-center text-xs">
                     <div>
                       {commentCount} comments • {likeCount} likes
@@ -324,7 +321,7 @@ const SinglePost: NextPage = () => {
               setCommentCount={setCommentCount}
             />
           )}
-          <div className="m-5 mt-10 border-t-2 border-slate-200 bg-gray-900 p-2">
+          <div className="m-5 border-t-2 border-slate-200 bg-gray-900 p-2">
             <div className="flex w-full flex-col">
               <div className="my-1 flex items-center justify-center"></div>
               <input
@@ -341,6 +338,7 @@ const SinglePost: NextPage = () => {
                         postId: post.id,
                         content: commentContent,
                       });
+                      setRefreshComments(true);
                     }
                   }
                 }}
@@ -350,13 +348,14 @@ const SinglePost: NextPage = () => {
                 <div className="flex w-full justify-center">
                   <button
                     className="w-fit rounded-md border-2 px-2"
-                    onClick={() =>
+                    onClick={() => {
                       createComment({
                         userId: sessionData.user.id,
                         postId: post.id,
                         content: commentContent,
-                      })
-                    }
+                      });
+                      setRefreshComments(true);
+                    }}
                     disabled={isCommenting}
                   >
                     Comment
