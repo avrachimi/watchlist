@@ -19,6 +19,7 @@ import {
 import placeholderProfilePic from "../../../public/profile.jpg";
 import Link from "next/link";
 import toast, { Toaster } from "react-hot-toast";
+import { NextPage } from "next";
 
 dayjs.extend(relativeTime);
 
@@ -104,7 +105,7 @@ const Comments = ({
   );
 };
 
-function SinglePost() {
+const SinglePost: NextPage = () => {
   const { data: sessionData } = useSession();
   const [refreshComments, setRefreshComments] = useState(false);
   const {
@@ -370,6 +371,6 @@ function SinglePost() {
       </main>
     </>
   );
-}
+};
 
 export default SinglePost;

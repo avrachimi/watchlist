@@ -8,7 +8,7 @@ import { LoadingSpinner } from "~/components/loading";
 import { Navbar } from "~/components/navbar";
 import { api } from "~/utils/api";
 
-const Posts = () => {
+const Posts: NextPage = () => {
   const { data: sessionData } = useSession();
   const [postContent, setPostContent] = useState("");
   const [refreshPosts, setRefreshPosts] = useState(false);
