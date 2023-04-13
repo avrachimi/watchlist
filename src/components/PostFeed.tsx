@@ -120,7 +120,9 @@ const Comments = ({ postId }: { postId: string }) => {
                       alt="Profile Pic"
                     />
                   </div>
-                  <div>{comment.user.name}</div>
+                  <Link href={`/profile/${comment.userId}`}>
+                    <div>{comment.user.name}</div>
+                  </Link>
                 </div>
                 <div className="flex items-center justify-between">
                   <div>{dayjs(comment.createdAt).fromNow()}</div>
