@@ -193,6 +193,8 @@ const PostBlock = ({ postId, userId }: { postId: string; userId: string }) => {
 
   const [refreshComments, setRefreshComments] = useState(false);
   const [commentContent, setCommentContent] = useState("");
+  const [commentCount, setCommentCount] = useState(0);
+
   const {
     mutate: createComment,
     error: errorCreatingComment,
@@ -219,10 +221,11 @@ const PostBlock = ({ postId, userId }: { postId: string; userId: string }) => {
 
   useEffect(() => {
     setRefreshComments(false);
-  }, [isCommenting]);
+  }, [refreshComments]);
 
   useEffect(() => {
     setLikeCount(post?.PostLike.length ?? 0);
+    setCommentCount(post?.PostComment.length ?? 0);
     let temp = false;
     post?.PostLike.map((like) => {
       if (like.userId === sessionData?.user.id) temp = true;
@@ -239,7 +242,18 @@ const PostBlock = ({ postId, userId }: { postId: string; userId: string }) => {
 
   if (!post) return null;
 
-  const commentCount = post.PostComment.length;
+  if (!sessionData?.user) {
+    return (
+      <div className="flex h-screen w-full flex-col items-center justify-center bg-gray-900">
+        <button
+          className="rounded-xl bg-white/10 px-10 py-3 font-semibold text-white no-underline transition hover:bg-white/20"
+          onClick={() => void signIn()}
+        >
+          Sign in
+        </button>
+      </div>
+    );
+  }
 
   const toggleLike = () => {
     if (isLiked) {
@@ -261,22 +275,22 @@ const PostBlock = ({ postId, userId }: { postId: string; userId: string }) => {
       key={post.id}
       className="my-2 flex w-full flex-col justify-center rounded-md border-2 border-gray-400 p-3"
     >
-      <div className="flex w-full items-center justify-between">
-        <div className="flex items-center">
-          <div className="w-7 items-center justify-center">
-            <img
-              className="rounded-full border-2 border-gray-400"
-              src={post.user.image ?? placeholderProfilePic.src}
-              alt="Profile Pic"
-            />
-          </div>
-          <Link href={`/profile/${post.user.id}`}>
-            <div className="text-md mx-2">{post.user.name}</div>
-          </Link>
-        </div>
-        {/* <div className="flex items-center justify-center">Delete</div> */}
-      </div>
       <Link href={`/posts/${post.id}`}>
+        <div className="flex w-full items-center justify-between">
+          <div className="flex items-center">
+            <div className="w-7 items-center justify-center">
+              <img
+                className="rounded-full border-2 border-gray-400"
+                src={post.user.image ?? placeholderProfilePic.src}
+                alt="Profile Pic"
+              />
+            </div>
+            <Link href={`/profile/${post.user.id}`}>
+              <div className="text-md mx-2">{post.user.name}</div>
+            </Link>
+          </div>
+          {/* <div className="flex items-center justify-center">Delete</div> */}
+        </div>
         <div className="text-md my-2 mx-2">{post.content}</div>
       </Link>
       <div className="flex w-full items-center justify-between justify-self-start px-2 pb-2 text-xs">
@@ -285,7 +299,7 @@ const PostBlock = ({ postId, userId }: { postId: string; userId: string }) => {
         {!refreshLikes && (
           <div className="flex items-center text-xs">
             <div>
-              {post.PostComment.length} comments • {likeCount} likes
+              {commentCount} comments • {likeCount} likes
             </div>
             <div className="ml-3 cursor-pointer" onClick={() => toggleLike()}>
               {isLiked && <AiFillHeart size={22} />}
@@ -323,7 +337,7 @@ const PostBlock = ({ postId, userId }: { postId: string; userId: string }) => {
                 className="w-fit rounded-md border-2 px-2"
                 onClick={() =>
                   createComment({
-                    userId: post.userId,
+                    userId: sessionData.user.id,
                     postId: post.id,
                     content: commentContent,
                   })
@@ -353,6 +367,11 @@ const PostBlock = ({ postId, userId }: { postId: string; userId: string }) => {
 export const PostFeed = () => {
   const { data: sessionData } = useSession();
   const { data: dbPosts, isLoading: postsLoading } = api.post.getAll.useQuery();
+  const [refreshPost, setRefreshPost] = useState(false);
+
+  useEffect(() => {
+    setRefreshPost((prev) => !prev);
+  }, [refreshPost]);
 
   if (postsLoading) return <LoadingPage />;
 
