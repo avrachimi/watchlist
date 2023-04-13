@@ -38,7 +38,7 @@ const Comments = ({ postId }: { postId: string }) => {
                       />
                     </div>
                     <Link href={`/profile/${comment.userId}`}>
-                      <div>{comment.user.name}</div>
+                      <div className="text-gray-200">{comment.user.name}</div>
                     </Link>
                   </div>
                   <div className="flex items-center justify-between">
@@ -203,7 +203,7 @@ const PostBlock = ({ postId, userId }: { postId: string; userId: string }) => {
           </div>
         </div>
         <Link href={`/posts/${post.id}`}>
-          <div className="text-md my-2 mx-2">{post.content}</div>
+          <div className="text-md my-2 mx-2 text-gray-200">{post.content}</div>
         </Link>
         <div className="flex w-full items-center justify-between justify-self-start px-2 pb-2 text-xs">
           <div className="text-gray-400">{dayjs(post.createdAt).fromNow()}</div>
