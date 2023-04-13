@@ -12,7 +12,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
 }) => {
   return (
     <SessionProvider session={session}>
-      <Component {...pageProps} className=" overflow-y-scroll" />
+      <Component {...pageProps} className="overflow-y-scroll" />
     </SessionProvider>
   );
 };
