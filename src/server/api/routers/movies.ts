@@ -34,6 +34,22 @@ export const movieRouter = createTRPCRouter({
     });
   }),
 
+  getAllSortedByRecent: protectedProcedure.query(({ ctx }) => {
+    return ctx.prisma.movie.findMany({
+      include: {
+        Watched: {
+          include: {
+            user: true,
+          },
+        },
+        Rating: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+  }),
+
   getAllMovies: protectedProcedure.query(({ ctx }) => {
     return ctx.prisma.movie.findMany({
       where: {
@@ -167,7 +183,13 @@ export const movieRouter = createTRPCRouter({
         if (rating.Source === "Metacritic")
           metaRating = parseFloat(rating.Value.split("/")[0] ?? "0") / 20;
       });
-      if (input.imdbRating) imdbRating = parseFloat(input.imdbRating) / 2;
+      if (input.imdbRating && input.imdbRating !== "N/A") {
+        imdbRating = parseFloat(input.imdbRating) / 2;
+      } else {
+        imdbRating = 0;
+      }
+
+      if (input.Runtime === "N/A") input.Runtime = "0";
 
       return ctx.prisma.movie.create({
         data: {
@@ -225,7 +247,15 @@ export const movieRouter = createTRPCRouter({
         if (rating.Source === "Metacritic")
           metaRating = parseFloat(rating.Value.split("/")[0] ?? "0") / 20;
       });
-      if (movie.imdbRating) imdbRating = parseFloat(movie.imdbRating) / 2;
+      if (movie.imdbRating && movie.imdbRating !== "N/A") {
+        imdbRating = parseFloat(movie.imdbRating) / 2;
+      } else {
+        imdbRating = 0;
+      }
+
+      let runtime = "0";
+      if (movie.Runtime && movie.Runtime !== "N/A")
+        runtime = movie.Runtime.split(" ")[0] ?? "0";
 
       return ctx.prisma.movie.update({
         where: {
@@ -236,6 +266,7 @@ export const movieRouter = createTRPCRouter({
           rottenRating: rottenRating,
           metacriticRating: metaRating,
           imdbRating: imdbRating,
+          runtime: parseInt(runtime),
         },
       });
     }),

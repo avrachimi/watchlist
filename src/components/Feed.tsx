@@ -32,14 +32,12 @@ export const Feed = () => {
   useEffect(() => {
     console.log("triggered isSeries useEffect");
     setData(isSeries ? series : movies);
-    console.log(data);
 
     window.localStorage.setItem("isSeries", isSeries.toString());
   }, [isSeries, seriesLoading, moviesLoading]);
 
   useEffect(() => {
     window.localStorage.setItem("includeWatched", includeWatched.toString());
-    console.log(JSON.parse(window.localStorage.getItem("includeWatched")!));
   }, [includeWatched]);
 
   useEffect(() => {

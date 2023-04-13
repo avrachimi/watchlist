@@ -71,7 +71,7 @@ export const Navbar = ({ query = "" }: Props) => {
                   onClick={() => setMobileNavbar((prev) => !prev)}
                 />
               </div>
-              <div className="mt-8 h-full w-full text-right text-3xl">
+              <div className="mt-8 h-full w-full text-right text-2xl">
                 <ul className="mr-2 flex h-full cursor-default flex-col gap-4">
                   <li>
                     <Link href={`/`}>Home</Link>
@@ -81,6 +81,9 @@ export const Navbar = ({ query = "" }: Props) => {
                   </li>
                   <li>
                     <Link href={`/watchlist`}>Watchlist</Link>
+                  </li>
+                  <li>
+                    <Link href={`/recently-added`}>Recently added</Link>
                   </li>
                   <li>
                     <Link href={`/friends`}>Friends</Link>
@@ -113,6 +116,9 @@ export const Navbar = ({ query = "" }: Props) => {
           </Link>
           <Link href={"/watchlist"} className="px-4">
             Watchlist
+          </Link>
+          <Link href={"/recently-added"} className="px-4">
+            Recently added
           </Link>
           <Link href={"/friends"} className="px-4">
             Friends
