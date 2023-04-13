@@ -276,7 +276,7 @@ const PostBlock = ({ postId, userId }: { postId: string; userId: string }) => {
       <Link href={`/posts/${post.id}`}>
         <div className="text-md my-2 mx-2">{post.content}</div>
       </Link>
-      <div className="flex w-full items-center justify-between justify-self-start pb-2 text-xs">
+      <div className="flex w-full items-center justify-between justify-self-start px-2 pb-2 text-xs">
         <div className="text-gray-400">{dayjs(post.createdAt).fromNow()}</div>
 
         {!refreshLikes && (
@@ -285,8 +285,8 @@ const PostBlock = ({ postId, userId }: { postId: string; userId: string }) => {
               {post.PostComment.length} comments • {likeCount} likes
             </div>
             <div className="ml-3 cursor-pointer" onClick={() => toggleLike()}>
-              {isLiked && <AiFillHeart size={20} />}
-              {!isLiked && <AiOutlineHeart size={20} />}
+              {isLiked && <AiFillHeart size={22} />}
+              {!isLiked && <AiOutlineHeart size={22} />}
             </div>
           </div>
         )}

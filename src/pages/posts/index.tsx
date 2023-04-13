@@ -62,9 +62,9 @@ const Posts: NextPage = () => {
           <div className="m-3 border-b-2 border-slate-200 bg-gray-900 p-2">
             <div className="flex w-full flex-col">
               <div className="my-1 flex items-center justify-center"></div>
-              <input
+              <textarea
                 placeholder="Type something to post..."
-                className="grow bg-transparent outline-none"
+                className="mb-1 h-8 grow bg-transparent outline-none duration-200 ease-in focus:h-32"
                 value={postContent}
                 onChange={(e) => setPostContent(e.target.value)}
                 onKeyDown={(e) => {
