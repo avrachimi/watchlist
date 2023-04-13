@@ -303,11 +303,12 @@ const PostBlock = ({ postId, userId }: { postId: string; userId: string }) => {
               if (e.key === "Enter") {
                 e.preventDefault();
                 if (commentContent !== "") {
-                  createComment({
-                    userId: post.userId,
-                    postId: post.id,
-                    content: commentContent,
-                  });
+                  if (sessionData)
+                    createComment({
+                      userId: sessionData.user.id,
+                      postId: post.id,
+                      content: commentContent,
+                    });
                 }
               }
             }}
