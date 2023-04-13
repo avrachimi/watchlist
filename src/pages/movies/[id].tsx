@@ -44,7 +44,6 @@ const SingleMovie = () => {
     api.rating.getByMovieId.useQuery({
       movieId: id,
     });
-  const { mutate: mutateFriendRating } = api.movie.updateRatings.useMutation();
   const [reviews, setReviews] = useState<ratingType[]>([]);
   const [reviewed, setReviewed] = useState(false);
   const [deletedReview, setDeletedReview] = useState(false);
