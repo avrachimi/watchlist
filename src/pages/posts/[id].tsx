@@ -68,7 +68,10 @@ const Comments = ({
       {comments && comments.length > 0 ? (
         <div className="mx-5 border-t pt-2">
           {comments.map((comment) => (
-            <div className="my-2 flex w-full flex-col text-xs text-gray-400">
+            <div
+              className="my-2 flex w-full flex-col text-xs text-gray-400"
+              key={comment.id}
+            >
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <div className="m-1 ml-0 flex w-5 items-center justify-center">

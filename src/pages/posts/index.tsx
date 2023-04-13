@@ -8,7 +8,7 @@ import { LoadingSpinner } from "~/components/loading";
 import { Navbar } from "~/components/navbar";
 import { api } from "~/utils/api";
 
-const Posts: NextPage = () => {
+const PostsFeed = () => {
   const { data: sessionData } = useSession();
   const [postContent, setPostContent] = useState("");
   const [refreshPosts, setRefreshPosts] = useState(false);
@@ -19,7 +19,7 @@ const Posts: NextPage = () => {
   } = api.post.create.useMutation({
     onSuccess: () => {
       setPostContent("");
-      setRefreshPosts((prev) => !prev);
+      setRefreshPosts(false);
       toast.success("Created new post");
     },
     onError: (e) => {
@@ -31,11 +31,6 @@ const Posts: NextPage = () => {
       }
     },
   });
-
-  useEffect(() => {
-    //const { data } = api.post.getAll.useQuery();
-    setRefreshPosts(false);
-  }, [refreshPosts]);
 
   if (!sessionData?.user) {
     return (
@@ -76,6 +71,7 @@ const Posts: NextPage = () => {
                         userId: sessionData.user.id,
                         content: postContent,
                       });
+                      setRefreshPosts(true);
                     }
                   }
                 }}
@@ -111,4 +107,4 @@ const Posts: NextPage = () => {
   );
 };
 
-export default Posts;
+export default PostsFeed;

@@ -12,92 +12,6 @@ import toast, { Toaster } from "react-hot-toast";
 
 dayjs.extend(relativeTime);
 
-const LikeComponent = ({
-  postId,
-  userId,
-  commentCount,
-  likeCount,
-}: {
-  postId: string;
-  userId: string;
-  commentCount: number;
-  likeCount: number;
-}) => {
-  const { data: like, isLoading: likeLoading } =
-    api.postLike.getByPostIdAndUserId.useQuery({
-      postId: postId,
-      userId: userId,
-    });
-
-  const { mutate: createLike, isLoading: isLiking } =
-    api.postLike.create.useMutation({
-      onSuccess: () => {
-        //setRefreshLikes((prev) => !prev);
-        likeCount += 1;
-        toast.success("Liked post");
-      },
-      onError: (e) => {
-        const errorMessage = e.data?.zodError?.fieldErrors.content;
-        if (errorMessage && errorMessage[0]) {
-          toast.error(errorMessage[0]);
-        } else {
-          toast.error("Failed to like post. Please try again.");
-        }
-      },
-    });
-  const { mutate: deleteLike, isLoading: isDeletingLike } =
-    api.postLike.delete.useMutation({
-      onSuccess: () => {
-        //setRefreshLikes((prev) => !prev);
-        likeCount -= 1;
-        toast.success("Removed like from post");
-      },
-      onError: (e) => {
-        const errorMessage = e.data?.zodError?.fieldErrors.content;
-        if (errorMessage && errorMessage[0]) {
-          toast.error(errorMessage[0]);
-        } else {
-          toast.error("Failed to like post. Please try again.");
-        }
-      },
-    });
-
-  if (likeLoading)
-    return (
-      <div className="flex h-full w-full items-center justify-center">
-        <LoadingSpinner />
-      </div>
-    );
-
-  if (!like) return null;
-
-  const toggleLike = () => {
-    if (like) {
-      deleteLike({
-        id: like.id,
-      });
-    } else {
-      createLike({
-        userId: userId,
-        postId: postId,
-      });
-    }
-    console.log("toggle like");
-  };
-
-  return (
-    <div className="flex items-center text-xs">
-      <div>
-        {commentCount} comments • {likeCount} likes
-      </div>
-      <div className="ml-3 cursor-pointer" onClick={() => toggleLike()}>
-        {like && <AiFillHeart size={20} />}
-        {!like && <AiOutlineHeart size={20} />}
-      </div>
-    </div>
-  );
-};
-
 const Comments = ({ postId }: { postId: string }) => {
   const { data: comments, isLoading: commentsLoading } =
     api.postComment.getLatestCommentsbyPostId.useQuery({
@@ -110,7 +24,10 @@ const Comments = ({ postId }: { postId: string }) => {
       {comments && comments.length > 0 ? (
         <div className="border-t pt-2">
           {comments.map((comment) => (
-            <div className="my-2 flex w-full flex-col text-xs text-gray-400">
+            <div
+              className="my-2 flex w-full flex-col text-xs text-gray-400"
+              key={comment.id}
+            >
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <div className="m-1 ml-0 flex w-5 items-center justify-center">
@@ -159,7 +76,7 @@ const PostBlock = ({ postId, userId }: { postId: string; userId: string }) => {
   const { mutate: createLike, isLoading: isLiking } =
     api.postLike.create.useMutation({
       onSuccess: () => {
-        setRefreshLikes((prev) => !prev);
+        setRefreshLikes(false);
         setIsLiked(true);
         setLikeCount((prev) => prev + 1);
         toast.success("Liked post");
@@ -176,7 +93,7 @@ const PostBlock = ({ postId, userId }: { postId: string; userId: string }) => {
   const { mutate: deleteLike, isLoading: isDeletingLike } =
     api.postLike.delete.useMutation({
       onSuccess: () => {
-        setRefreshLikes((prev) => !prev);
+        setRefreshLikes(false);
         setIsLiked(false);
         setLikeCount((prev) => prev - 1);
         toast.success("Removed like from post");
@@ -201,7 +118,7 @@ const PostBlock = ({ postId, userId }: { postId: string; userId: string }) => {
     isLoading: isCommenting,
   } = api.postComment.create.useMutation({
     onSuccess: () => {
-      setRefreshComments((prev) => !prev);
+      setRefreshComments(false);
       setCommentContent("");
       toast.success("Commented on post");
     },
@@ -214,14 +131,6 @@ const PostBlock = ({ postId, userId }: { postId: string; userId: string }) => {
       }
     },
   });
-
-  useEffect(() => {
-    setRefreshLikes(false);
-  }, [refreshLikes]);
-
-  useEffect(() => {
-    setRefreshComments(false);
-  }, [refreshComments]);
 
   useEffect(() => {
     setLikeCount(post?.PostLike.length ?? 0);
@@ -266,6 +175,7 @@ const PostBlock = ({ postId, userId }: { postId: string; userId: string }) => {
           userId: sessionData.user.id,
           postId: postId,
         });
+      setRefreshLikes(true);
     }
     console.log("toggle like");
   };
@@ -273,7 +183,6 @@ const PostBlock = ({ postId, userId }: { postId: string; userId: string }) => {
   return (
     <>
       <Toaster position="top-center" reverseOrder={false} />
-
       <div
         key={post.id}
         className="my-2 flex w-full flex-col justify-center rounded-md border-2 border-gray-400 p-3"
@@ -291,7 +200,6 @@ const PostBlock = ({ postId, userId }: { postId: string; userId: string }) => {
               <div className="text-md mx-2">{post.user.name}</div>
             </Link>
           </div>
-          {/* <div className="flex items-center justify-center">Delete</div> */}
         </div>
         <Link href={`/posts/${post.id}`}>
           <div className="text-md my-2 mx-2">{post.content}</div>
@@ -329,6 +237,7 @@ const PostBlock = ({ postId, userId }: { postId: string; userId: string }) => {
                         postId: post.id,
                         content: commentContent,
                       });
+                    setRefreshComments(true);
                   }
                 }
               }}
@@ -338,13 +247,14 @@ const PostBlock = ({ postId, userId }: { postId: string; userId: string }) => {
               <div className="flex w-full justify-center">
                 <button
                   className="w-fit rounded-md border-2 px-2"
-                  onClick={() =>
+                  onClick={() => {
                     createComment({
                       userId: sessionData.user.id,
                       postId: post.id,
                       content: commentContent,
-                    })
-                  }
+                    });
+                    setRefreshComments(true);
+                  }}
                   disabled={isCommenting}
                 >
                   Comment
@@ -371,11 +281,6 @@ const PostBlock = ({ postId, userId }: { postId: string; userId: string }) => {
 export const PostFeed = () => {
   const { data: sessionData } = useSession();
   const { data: dbPosts, isLoading: postsLoading } = api.post.getAll.useQuery();
-  const [refreshPost, setRefreshPost] = useState(false);
-
-  useEffect(() => {
-    setRefreshPost((prev) => !prev);
-  }, [refreshPost]);
 
   if (postsLoading) return <LoadingPage />;
 
