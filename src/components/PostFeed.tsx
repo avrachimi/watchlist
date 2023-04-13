@@ -225,7 +225,7 @@ const PostBlock = ({ postId, userId }: { postId: string; userId: string }) => {
     setLikeCount(post?.PostLike.length ?? 0);
     let temp = false;
     post?.PostLike.map((like) => {
-      if (like.userId === userId) temp = true;
+      if (like.userId === sessionData?.user.id) temp = true;
     });
     setIsLiked(temp);
   }, [postLoading]);
@@ -247,10 +247,11 @@ const PostBlock = ({ postId, userId }: { postId: string; userId: string }) => {
         id: like?.id ?? "",
       });
     } else {
-      createLike({
-        userId: userId,
-        postId: postId,
-      });
+      if (sessionData)
+        createLike({
+          userId: sessionData.user.id,
+          postId: postId,
+        });
     }
     console.log("toggle like");
   };
