@@ -33,7 +33,32 @@ const DropdownGenre = ({
   ];
 
   const [showContents, setShowContents] = useState(false);
-  const [options, setOptions] = useState(["All"]);
+  const [options, setOptions] = useState<string[]>(
+    JSON.parse(
+      window.localStorage.getItem("filterGenres") ?? JSON.stringify(["All"])
+    )
+  );
+
+  useEffect(() => {
+    window.localStorage.setItem("filterGenres", JSON.stringify(options));
+  }, [options]);
+
+  useEffect(() => {
+    refreshDropdown();
+  }, []);
+
+  const refreshDropdown = () => {
+    let result = JSON.parse(
+      window.localStorage.getItem("filterGenres") ?? JSON.stringify(["All"])
+    );
+    setOptions(result);
+
+    if (result.includes("All")) {
+      setGenres(["All"]);
+    } else {
+      setGenres(result);
+    }
+  };
 
   const toggleDropdownItem = (item: string) => {
     if (options.includes(item)) {
@@ -145,7 +170,29 @@ const DropdownMovieType = ({
   const items = ["Movies", "Series"];
 
   const [showContents, setShowContents] = useState(false);
-  const [options, setOptions] = useState(items);
+  const [options, setOptions] = useState(
+    JSON.parse(
+      window.localStorage.getItem("filterType") ?? JSON.stringify(items)
+    )
+  );
+
+  useEffect(() => {
+    refreshDropdown();
+  }, []);
+
+  const refreshDropdown = () => {
+    let result = JSON.parse(
+      window.localStorage.getItem("filterType") ?? JSON.stringify(items)
+    );
+    setOptions(result);
+
+    if (result.length === 2) {
+      setMovieType("all");
+    } else {
+      if (result[0] === "Movies") setMovieType("movie");
+      if (result[0] === "Series") setMovieType("series");
+    }
+  };
 
   const toggleDropdownItem = (item: string) => {
     if (options.includes(item)) {
@@ -155,9 +202,11 @@ const DropdownMovieType = ({
 
       setOptions([result]);
       setMovieType(result === "Movies" ? "movie" : "series");
+      window.localStorage.setItem("filterType", JSON.stringify([result]));
     } else {
       setOptions(items);
       setMovieType("all");
+      window.localStorage.setItem("filterType", JSON.stringify(items));
     }
   };
 
