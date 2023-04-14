@@ -50,7 +50,7 @@ export const movieRouter = createTRPCRouter({
     });
   }),
 
-  getAllFilterByGenreAndType: protectedProcedure
+  getAllFilterByGenre: protectedProcedure
     .input(
       z.object({
         genres: z.array(
