@@ -50,6 +50,47 @@ export const movieRouter = createTRPCRouter({
     });
   }),
 
+  getAllFilterByGenreAndType: protectedProcedure
+    .input(
+      z.object({
+        genres: z.array(
+          z.object({
+            genre: z.object({
+              contains: z.string(),
+            }),
+          })
+        ),
+      })
+    )
+    .query(({ ctx, input }) => {
+      return ctx.prisma.movie.findMany({
+        where: {
+          OR: input.genres,
+        },
+        include: {
+          Watched: {
+            include: {
+              user: true,
+            },
+          },
+          Rating: true,
+        },
+        orderBy: [
+          {
+            friendRating: "desc",
+          },
+          {
+            Watched: {
+              _count: "desc",
+            },
+          },
+          {
+            imdbRating: "desc",
+          },
+        ],
+      });
+    }),
+
   getAllMovies: protectedProcedure.query(({ ctx }) => {
     return ctx.prisma.movie.findMany({
       where: {

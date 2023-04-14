@@ -22,7 +22,12 @@ export const Feed = () => {
       window.localStorage.getItem("isSeries") ?? JSON.stringify(true)
     ) ?? true
   );
-  const { data: allMovieData, isLoading } = api.movie.getAll.useQuery();
+  const filterObj = {
+    genres: [{ genre: { contains: "Action" } }],
+    type: "movie | series",
+  };
+  const { data: allMovieData, isLoading } =
+    api.movie.getAllFilterByGenreAndType.useQuery(filterObj); //api.movie.getAll.useQuery();
   const { data: series, isLoading: seriesLoading } =
     api.movie.getAllSeries.useQuery();
   const { data: movies, isLoading: moviesLoading } =
@@ -85,19 +90,6 @@ export const Feed = () => {
       <div className="mt-2 flex w-full items-center justify-between px-5 lg:justify-start lg:gap-8">
         <label className="relative inline-flex cursor-pointer items-center">
           <input
-            checked={isSeries}
-            type="checkbox"
-            value=""
-            className="peer sr-only"
-            onChange={() => toggleType()}
-          />
-          <div className="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-blue-800"></div>
-          <span className="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300">
-            {isSeries ? "Series" : "Movies"}
-          </span>
-        </label>
-        <label className="relative inline-flex cursor-pointer items-center">
-          <input
             checked={includeWatched}
             type="checkbox"
             value=""
@@ -113,7 +105,7 @@ export const Feed = () => {
       <div className="flex w-full justify-center">
         <div className="my-2 mx-3 grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8">
           {!includeWatched &&
-            data?.map((movie) =>
+            allMovieData?.map((movie) =>
               !watchedMovieIds.includes(movie.id) ? (
                 <Link
                   href={`/movies/${movie.id}`}
@@ -142,7 +134,7 @@ export const Feed = () => {
               ) : null
             )}
           {includeWatched &&
-            data?.map((movie) => (
+            allMovieData?.map((movie) => (
               <Link
                 href={`/movies/${movie.id}`}
                 key={movie.id}
