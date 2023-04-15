@@ -25,6 +25,10 @@ const Home = () => {
       <Head>
         <title>Watchlist</title>
         <meta name="description" content="Movie and tv show recommendations" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"
+        ></meta>
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="min-w-screen min-h-screen bg-gray-900 pb-5">
