@@ -278,17 +278,170 @@ const DropdownMovieType = ({
   );
 };
 
+const DropdownTimePeriod = ({
+  setTimePeriod,
+}: {
+  setTimePeriod: React.Dispatch<
+    SetStateAction<{
+      start: Date;
+      end: Date;
+    }>
+  >;
+}) => {
+  const items = [
+    "All",
+    "Last 2 years",
+    "2011 - 2020",
+    "2001 - 2010",
+    "1991 - 2000",
+    "Before 1991",
+  ];
+
+  useEffect(() => {
+    setTimePeriod(
+      JSON.parse(
+        window.localStorage.getItem("timePeriod") ??
+          JSON.stringify({ start: new Date(0), end: new Date() })
+      )
+    );
+  }, []);
+
+  const [showContents, setShowContents] = useState(false);
+  const [selected, setSelected] = useState(items[0]);
+
+  const toggleDropdownItem = (item: string) => {
+    switch (item) {
+      case items[1]:
+        var dates = {
+          start: new Date(new Date().setFullYear(new Date().getFullYear() - 2)),
+          end: new Date(),
+        };
+        setTimePeriod(dates);
+        setSelected(items[1]!);
+        window.localStorage.setItem("timePeriod", JSON.stringify(dates));
+        break;
+      case items[2]:
+        var dates = {
+          start: new Date("1 Jan 2011"),
+          end: new Date("31 Dec 2020"),
+        };
+        setTimePeriod(dates);
+        setSelected(items[2]!);
+        window.localStorage.setItem("timePeriod", JSON.stringify(dates));
+        break;
+      case items[3]:
+        var dates = {
+          start: new Date("1 Jan 2001"),
+          end: new Date("31 Dec 2010"),
+        };
+        setTimePeriod(dates);
+        setSelected(items[3]!);
+        window.localStorage.setItem("timePeriod", JSON.stringify(dates));
+        break;
+      case items[4]:
+        var dates = {
+          start: new Date("1 Jan 1991"),
+          end: new Date("31 Dec 2000"),
+        };
+        setTimePeriod(dates);
+        setSelected(items[4]!);
+        window.localStorage.setItem("timePeriod", JSON.stringify(dates));
+        break;
+      case items[5]:
+        var dates = {
+          start: new Date(0),
+          end: new Date("31 Dec 1991"),
+        };
+        setTimePeriod(dates);
+        setSelected(items[5]!);
+        window.localStorage.setItem("timePeriod", JSON.stringify(dates));
+        break;
+      default:
+        var dates = {
+          start: new Date(0),
+          end: new Date(),
+        };
+        setTimePeriod(dates);
+        setSelected(items[0]!);
+        window.localStorage.setItem("timePeriod", JSON.stringify(dates));
+        break;
+    }
+    setShowContents((prev) => !prev);
+  };
+
+  return (
+    <div className="relative mx-2">
+      <button
+        id="dropdownCheckboxButton"
+        data-dropdown-toggle="dropdownDefaultCheckbox"
+        className="inline-flex items-center rounded-lg bg-blue-700 px-4 py-1.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+        type="button"
+        onClick={() => setShowContents((prev) => !prev)}
+      >
+        {selected}
+        <svg
+          className="ml-2 h-4 w-4"
+          aria-hidden="true"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M19 9l-7 7-7-7"
+          ></path>
+        </svg>
+      </button>
+      {showContents && (
+        <div
+          id="dropdownDefaultCheckbox"
+          className="absolute top-0 z-10 mt-10 w-48 divide-y divide-gray-100 rounded-lg bg-white shadow dark:divide-gray-600 dark:bg-gray-700"
+        >
+          <ul
+            className="space-y-3 p-3 text-sm text-gray-700 dark:text-gray-200"
+            aria-labelledby="dropdownCheckboxButton"
+          >
+            {items.map((item) => (
+              <li key={item}>
+                <div className="flex items-center">
+                  <label
+                    onClick={() => toggleDropdownItem(item)}
+                    className="ml-2 w-full cursor-pointer text-sm font-medium text-gray-900 dark:text-gray-300"
+                  >
+                    {item}
+                  </label>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const FilterBar = ({
   setMovieType,
   setGenres,
+  setTimePeriod,
 }: {
   setMovieType: React.Dispatch<React.SetStateAction<string>>;
   setGenres: React.Dispatch<React.SetStateAction<string[]>>;
+  setTimePeriod: React.Dispatch<
+    React.SetStateAction<{
+      start: Date;
+      end: Date;
+    }>
+  >;
 }) => {
   return (
     <div className="my-2 flex w-fit justify-start">
       <DropdownMovieType setMovieType={setMovieType} />
       <DropdownGenre setGenres={setGenres} />
+      <DropdownTimePeriod setTimePeriod={setTimePeriod} />
     </div>
   );
 };
@@ -493,6 +646,10 @@ export const Feed = () => {
   const [genres, setGenres] = useState<string[]>(["All"]);
   const [movieData, setMovieData] = useState(allMovieData);
   const [sort, setSort] = useState({ by: "recommended", asc: false });
+  const [timePeriod, setTimePeriod] = useState({
+    start: new Date("1 Jan 2010"),
+    end: new Date(),
+  });
 
   const filterMovies = () => {
     let result: typeof allMovieData = [];
@@ -510,15 +667,25 @@ export const Feed = () => {
         if (genres.some((element) => movie.genre?.includes(element)))
           tempData?.push(movie);
       });
-    } else {
-      tempData = result;
+      result = tempData;
     }
+    tempData = [];
+    result?.map((movie) => {
+      if (
+        !movie.released ||
+        (movie.released >= new Date(timePeriod.start) &&
+          movie.released <= new Date(timePeriod.end))
+      ) {
+        tempData?.push(movie);
+      }
+    });
+
     tempData = sortMovies({
       data: tempData,
     });
 
     setMovieData(tempData);
-    console.log("Both Filters: ", result);
+    console.log("All Filters: ", tempData);
   };
 
   const sortMovies = ({ data }: { data: typeof allMovieData }) => {
@@ -561,7 +728,7 @@ export const Feed = () => {
 
   useEffect(() => {
     filterMovies();
-  }, [genres, movieType, sort]);
+  }, [genres, movieType, sort, timePeriod]);
 
   useEffect(() => {
     window.localStorage.setItem("includeWatched", includeWatched.toString());
@@ -605,19 +772,25 @@ export const Feed = () => {
     <div className="flex w-full flex-col justify-center sm:px-5 2xl:px-20">
       <div className="mt-2 flex w-full items-center justify-between px-5 lg:justify-start lg:gap-8">
         <div className="flex w-full flex-col">
-          <FilterBar setMovieType={setMovieType} setGenres={setGenres} />
+          <FilterBar
+            setMovieType={setMovieType}
+            setGenres={setGenres}
+            setTimePeriod={setTimePeriod}
+          />
           <SortBar setSort={setSort} />
         </div>
-        <label className="relative inline-flex cursor-pointer items-center">
-          <input
-            checked={includeWatched}
-            type="checkbox"
-            value=""
-            className="peer sr-only"
-            onChange={() => toggleIncludeWatched()}
-          />
-          <div className="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-blue-800"></div>
-          <span className="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300">
+        <label className="relative inline-flex w-72 cursor-pointer flex-col items-center">
+          <div>
+            <input
+              checked={includeWatched}
+              type="checkbox"
+              value=""
+              className="peer sr-only"
+              onChange={() => toggleIncludeWatched()}
+            />
+            <div className="after:left-18 peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-blue-800"></div>
+          </div>
+          <span className="mt-1 text-center text-sm font-medium text-gray-900 dark:text-gray-300">
             {includeWatched ? "Including watched" : "Excluding watched"}
           </span>
         </label>
