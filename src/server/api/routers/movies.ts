@@ -18,6 +18,7 @@ export const movieRouter = createTRPCRouter({
         },
         Rating: true,
       },
+      /* 
       orderBy: [
         {
           friendRating: "desc",
@@ -30,7 +31,7 @@ export const movieRouter = createTRPCRouter({
         {
           imdbRating: "desc",
         },
-      ],
+      ], */
     });
   }),
 

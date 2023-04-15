@@ -1,10 +1,16 @@
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { SetStateAction, useEffect, useState } from "react";
 import { AiTwotoneEye } from "react-icons/ai";
 import { api } from "~/utils/api";
 import { LoadingPage } from "./loading";
 import ReviewStars from "./ReviewStars";
+import { boolean } from "zod";
+
+interface SortObjType {
+  by: string;
+  asc: boolean;
+}
 
 const DropdownGenre = ({
   setGenres,
@@ -287,6 +293,184 @@ const FilterBar = ({
   );
 };
 
+const DropdownSort = ({
+  setSort,
+}: {
+  setSort: React.Dispatch<
+    SetStateAction<{
+      by: string;
+      asc: boolean;
+    }>
+  >;
+}) => {
+  const items = [
+    "Recommended",
+    "Rating",
+    "Release: Most Recent",
+    "Release: Oldest",
+    "IMDb Rating",
+  ];
+
+  const getSelectedTextFromSortObj = ({
+    by,
+    asc,
+  }: {
+    by: string;
+    asc: boolean;
+  }) => {
+    switch (by) {
+      case "recommended":
+        return items[0];
+      case "friendRating":
+        return items[1];
+      case "releaseDate":
+        if (!asc) return items[2];
+        return items[3];
+      case "imdbRating":
+        return items[4];
+      default:
+        return items[0];
+    }
+  };
+
+  const getSelectedTextFromLocalStorage = () => {
+    let obj = JSON.parse(
+      window.localStorage.getItem("sortBy") ??
+        JSON.stringify({ by: "recommended", asc: false })
+    );
+
+    return getSelectedTextFromSortObj(obj);
+  };
+
+  useEffect(() => {
+    setSort(
+      JSON.parse(
+        window.localStorage.getItem("sortBy") ??
+          JSON.stringify({ by: "recommended", asc: false })
+      )
+    );
+  }, []);
+
+  const [showContents, setShowContents] = useState(false);
+  const [selected, setSelected] = useState(getSelectedTextFromLocalStorage());
+
+  const toggleDropdownItem = (item: string) => {
+    switch (item) {
+      case items[1]:
+        setSort({ by: "friendRating", asc: false });
+        setSelected(items[1]!);
+        window.localStorage.setItem(
+          "sortBy",
+          JSON.stringify({ by: "friendRating", asc: false })
+        );
+        break;
+      case items[2]:
+        setSort({ by: "releaseDate", asc: false });
+        setSelected(items[2]!);
+        window.localStorage.setItem(
+          "sortBy",
+          JSON.stringify({ by: "releaseDate", asc: false })
+        );
+        break;
+      case items[3]:
+        setSort({ by: "releaseDate", asc: true });
+        setSelected(items[3]!);
+        window.localStorage.setItem(
+          "sortBy",
+          JSON.stringify({ by: "releaseDate", asc: true })
+        );
+        break;
+      case items[4]:
+        setSort({ by: "imdbRating", asc: false });
+        setSelected(items[4]!);
+        window.localStorage.setItem(
+          "sortBy",
+          JSON.stringify({ by: "imdbRating", asc: false })
+        );
+        break;
+      default:
+        setSort({ by: "recommended", asc: false });
+        setSelected(items[0]!);
+        window.localStorage.setItem(
+          "sortBy",
+          JSON.stringify({ by: "recommended", asc: false })
+        );
+        break;
+    }
+    setShowContents((prev) => !prev);
+  };
+
+  return (
+    <div className="relative mx-2">
+      <button
+        id="dropdownCheckboxButton"
+        data-dropdown-toggle="dropdownDefaultCheckbox"
+        className="inline-flex items-center rounded-lg bg-blue-700 px-4 py-1.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+        type="button"
+        onClick={() => setShowContents((prev) => !prev)}
+      >
+        Sort by {selected}
+        <svg
+          className="ml-2 h-4 w-4"
+          aria-hidden="true"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M19 9l-7 7-7-7"
+          ></path>
+        </svg>
+      </button>
+      {showContents && (
+        <div
+          id="dropdownDefaultCheckbox"
+          className="absolute top-0 z-10 mt-10 w-48 divide-y divide-gray-100 rounded-lg bg-white shadow dark:divide-gray-600 dark:bg-gray-700"
+        >
+          <ul
+            className="space-y-3 p-3 text-sm text-gray-700 dark:text-gray-200"
+            aria-labelledby="dropdownCheckboxButton"
+          >
+            {items.map((item) => (
+              <li key={item}>
+                <div className="flex items-center">
+                  <label
+                    onClick={() => toggleDropdownItem(item)}
+                    className="ml-2 w-full cursor-pointer text-sm font-medium text-gray-900 dark:text-gray-300"
+                  >
+                    {item}
+                  </label>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const SortBar = ({
+  setSort,
+}: {
+  setSort: React.Dispatch<
+    SetStateAction<{
+      by: string;
+      asc: boolean;
+    }>
+  >;
+}) => {
+  return (
+    <div className="my-2 flex w-fit justify-start">
+      <DropdownSort setSort={setSort} />
+    </div>
+  );
+};
+
 export const Feed = () => {
   const { data: sessionData } = useSession();
   const { data: watchedMovies, isLoading: watchedMoviesLoading } =
@@ -308,6 +492,7 @@ export const Feed = () => {
   const [movieType, setMovieType] = useState("all");
   const [genres, setGenres] = useState<string[]>(["All"]);
   const [movieData, setMovieData] = useState(allMovieData);
+  const [sort, setSort] = useState({ by: "recommended", asc: false });
 
   const filterMovies = () => {
     let result: typeof allMovieData = [];
@@ -328,8 +513,46 @@ export const Feed = () => {
     } else {
       tempData = result;
     }
+    tempData = sortMovies({
+      data: tempData,
+    });
+
     setMovieData(tempData);
     console.log("Both Filters: ", result);
+  };
+
+  const sortMovies = ({ data }: { data: typeof allMovieData }) => {
+    if (data) {
+      let result = data;
+
+      if (sort.by === "releaseDate") {
+        result.sort((a, b) =>
+          a.released && b.released
+            ? new Date(a.released).valueOf() - new Date(b.released).valueOf()
+            : 0
+        );
+      } else if (sort.by === "friendRating") {
+        result.sort((a, b) => a.Watched.length - b.Watched.length);
+        result.sort(
+          (a, b) =>
+            Math.round(a.friendRating * 100) / 100 -
+            Math.round(b.friendRating * 100) / 100
+        );
+      } else if (sort.by === "imdbRating") {
+        result.sort((a, b) => a.imdbRating - b.imdbRating);
+      } else if (sort.by === "recommended") {
+        result.sort((a, b) => a.Watched.length - b.Watched.length);
+        result.sort(
+          (a, b) =>
+            Math.round((a.friendRating + a.Watched.length / 5) * 100) / 100 -
+            Math.round((b.friendRating + b.Watched.length / 5) * 100) / 100
+        );
+      }
+
+      if (!sort.asc) result.reverse();
+      return result;
+    }
+    return data;
   };
 
   useEffect(() => {
@@ -338,7 +561,7 @@ export const Feed = () => {
 
   useEffect(() => {
     filterMovies();
-  }, [genres, movieType]);
+  }, [genres, movieType, sort]);
 
   useEffect(() => {
     window.localStorage.setItem("includeWatched", includeWatched.toString());
@@ -381,7 +604,10 @@ export const Feed = () => {
   return (
     <div className="flex w-full flex-col justify-center sm:px-5 2xl:px-20">
       <div className="mt-2 flex w-full items-center justify-between px-5 lg:justify-start lg:gap-8">
-        <FilterBar setMovieType={setMovieType} setGenres={setGenres} />
+        <div className="flex w-full flex-col">
+          <FilterBar setMovieType={setMovieType} setGenres={setGenres} />
+          <SortBar setSort={setSort} />
+        </div>
         <label className="relative inline-flex cursor-pointer items-center">
           <input
             checked={includeWatched}
