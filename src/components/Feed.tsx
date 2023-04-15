@@ -541,11 +541,11 @@ export const Feed = () => {
       } else if (sort.by === "imdbRating") {
         result.sort((a, b) => a.imdbRating - b.imdbRating);
       } else if (sort.by === "recommended") {
-        result.sort((a, b) => a.Watched.length - b.Watched.length);
+        //result.sort((a, b) => a.Watched.length - b.Watched.length);
         result.sort(
           (a, b) =>
-            Math.round((a.friendRating + a.Watched.length / 5) * 100) / 100 -
-            Math.round((b.friendRating + b.Watched.length / 5) * 100) / 100
+            Math.round((a.friendRating + a.Watched.length) * 100) / 100 -
+            Math.round((b.friendRating + b.Watched.length) * 100) / 100
         );
       }
 
