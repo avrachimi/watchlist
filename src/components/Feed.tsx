@@ -3,7 +3,7 @@ import Link from "next/link";
 import { SetStateAction, useEffect, useState } from "react";
 import { AiTwotoneEye } from "react-icons/ai";
 import { api } from "~/utils/api";
-import { LoadingPage } from "./loading";
+import { LoadingPage, LoadingSpinner } from "./loading";
 import ReviewStars from "./ReviewStars";
 import { boolean } from "zod";
 
@@ -627,7 +627,7 @@ const SortBar = ({
 export const Feed = () => {
   const { data: sessionData } = useSession();
   const { data: watchedMovies, isLoading: watchedMoviesLoading } =
-    api.watched.getWatchedMoviesbyUserId.useQuery({
+    api.watched.getWatchedMovieIdsbyUserId.useQuery({
       userId: sessionData?.user.id ?? "",
     });
   const [includeWatched, setIncludeWatched] = useState<boolean>(
@@ -637,10 +637,6 @@ export const Feed = () => {
   );
   const { data: allMovieData, isLoading: isAllMoviesLoading } =
     api.movie.getAll.useQuery();
-  const { data: moviesByGenre, isLoading: isGenreMoviesLoading } =
-    api.movie.getAllFilterByGenre.useQuery({
-      genres: [{ genre: { contains: "Action" } }],
-    });
 
   const [movieType, setMovieType] = useState("all");
   const [genres, setGenres] = useState<string[]>(["All"]);
@@ -650,8 +646,10 @@ export const Feed = () => {
     start: new Date("1 Jan 2010"),
     end: new Date(),
   });
+  const [showLoading, setLoading] = useState(true);
 
   const filterMovies = () => {
+    setLoading(true);
     let result: typeof allMovieData = [];
     if (movieType !== "all") {
       allMovieData?.map((movie) => {
@@ -685,6 +683,7 @@ export const Feed = () => {
     });
 
     setMovieData(tempData);
+    setLoading(false);
     console.log("All Filters: ", tempData);
   };
 
@@ -770,7 +769,7 @@ export const Feed = () => {
 
   return (
     <div className="flex w-full flex-col justify-center sm:px-5 2xl:px-20">
-      <div className="mt-2 flex w-full items-center justify-between px-5 lg:justify-start lg:gap-8">
+      <div className="mt-2 flex w-full flex-col items-start justify-between px-5 lg:flex-row lg:justify-start lg:gap-8">
         <div className="flex w-full flex-col">
           <FilterBar
             setMovieType={setMovieType}
@@ -779,7 +778,7 @@ export const Feed = () => {
           />
           <SortBar setSort={setSort} />
         </div>
-        <label className="relative inline-flex w-72 cursor-pointer flex-col items-center">
+        <label className="relative inline-flex cursor-pointer">
           <div>
             <input
               checked={includeWatched}
@@ -790,28 +789,57 @@ export const Feed = () => {
             />
             <div className="after:left-18 peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-blue-800"></div>
           </div>
-          <span className="mt-1 text-center text-sm font-medium text-gray-900 dark:text-gray-300">
+          <span className="ml-1 text-center text-sm font-medium text-gray-900 dark:text-gray-300">
             {includeWatched ? "Including watched" : "Excluding watched"}
           </span>
         </label>
       </div>
-      <div className="flex w-full justify-center">
-        <div className="my-2 mx-3 grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8">
-          {!includeWatched &&
-            movieData?.map((movie) =>
-              !watchedMovieIds.includes(movie.id) ? (
+      {!showLoading && (
+        <div className="flex w-full justify-center">
+          <div className="my-2 mx-3 grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8">
+            {!includeWatched &&
+              movieData?.map((movie) =>
+                !watchedMovieIds.includes(movie.id) ? (
+                  <Link
+                    href={`/movies/${movie.id}`}
+                    key={movie.id}
+                    className="m-2 flex flex-col justify-between overflow-hidden rounded-lg border-2 border-slate-200"
+                  >
+                    <img
+                      src={movie.imageUrl}
+                      className="block h-60 w-full border-b object-cover"
+                    />
+                    <div className="flex w-full flex-col items-center justify-between">
+                      <div className="mt-2 w-full text-center text-sm font-bold">
+                        {getShortMovieTitle(movie.title)}
+                      </div>
+                      <div className="mt-3 flex w-full flex-col items-center justify-center px-1 pb-2">
+                        <ReviewStars rating={movie.friendRating} />
+                        <div className="text-right text-sm">
+                          <div className="mt-1 flex items-center justify-end">
+                            <AiTwotoneEye className="mx-1" />
+                            <span>{movie.Watched.length}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                ) : null
+              )}
+            {includeWatched &&
+              movieData?.map((movie) => (
                 <Link
                   href={`/movies/${movie.id}`}
                   key={movie.id}
-                  className="m-2 flex flex-col justify-between overflow-hidden rounded-lg border-2 border-slate-200"
+                  className="m-2 flex flex-col items-center justify-between overflow-hidden rounded-lg border-2 border-slate-200"
                 >
                   <img
                     src={movie.imageUrl}
                     className="block h-60 w-full border-b object-cover"
                   />
-                  <div className="flex w-full flex-col items-center justify-between">
-                    <div className="mt-2 w-full text-center text-sm font-bold">
-                      {getShortMovieTitle(movie.title)}
+                  <div className="flex h-fit w-full flex-col items-center justify-between">
+                    <div className="mx-1 mt-2 w-fit text-center text-sm font-bold">
+                      {movie.title}
                     </div>
                     <div className="mt-3 flex w-full flex-col items-center justify-center px-1 pb-2">
                       <ReviewStars rating={movie.friendRating} />
@@ -824,37 +852,15 @@ export const Feed = () => {
                     </div>
                   </div>
                 </Link>
-              ) : null
-            )}
-          {includeWatched &&
-            movieData?.map((movie) => (
-              <Link
-                href={`/movies/${movie.id}`}
-                key={movie.id}
-                className="m-2 flex flex-col items-center justify-between overflow-hidden rounded-lg border-2 border-slate-200"
-              >
-                <img
-                  src={movie.imageUrl}
-                  className="block h-60 w-full border-b object-cover"
-                />
-                <div className="flex h-fit w-full flex-col items-center justify-between">
-                  <div className="mx-1 mt-2 w-fit text-center text-sm font-bold">
-                    {movie.title}
-                  </div>
-                  <div className="mt-3 flex w-full flex-col items-center justify-center px-1 pb-2">
-                    <ReviewStars rating={movie.friendRating} />
-                    <div className="text-right text-sm">
-                      <div className="mt-1 flex items-center justify-end">
-                        <AiTwotoneEye className="mx-1" />
-                        <span>{movie.Watched.length}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            ))}
+              ))}
+          </div>
         </div>
-      </div>
+      )}
+      {showLoading && (
+        <div className="flex h-[70vh] w-full items-center justify-center">
+          <LoadingSpinner size={40} />
+        </div>
+      )}
     </div>
   );
 };

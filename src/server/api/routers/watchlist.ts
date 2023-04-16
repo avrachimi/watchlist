@@ -19,7 +19,6 @@ export const watchlistRouter = createTRPCRouter({
           userId: input.id,
         },
         include: {
-          user: true,
           movie: true,
         },
         orderBy: {

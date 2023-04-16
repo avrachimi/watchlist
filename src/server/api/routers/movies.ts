@@ -18,24 +18,10 @@ export const movieRouter = createTRPCRouter({
         },
         Rating: true,
       },
-      /* 
-      orderBy: [
-        {
-          friendRating: "desc",
-        },
-        {
-          Watched: {
-            _count: "desc",
-          },
-        },
-        {
-          imdbRating: "desc",
-        },
-      ], */
     });
   }),
 
-  getAllSortedByRecent: protectedProcedure.query(({ ctx }) => {
+  getSortedByRecent: protectedProcedure.query(({ ctx }) => {
     return ctx.prisma.movie.findMany({
       include: {
         Watched: {
@@ -48,6 +34,7 @@ export const movieRouter = createTRPCRouter({
       orderBy: {
         createdAt: "desc",
       },
+      take: 200,
     });
   }),
 

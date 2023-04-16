@@ -41,18 +41,14 @@ const Friends = () => {
       />
     );
 
-  console.log(users);
-
   let moviesWatchedCount = (user: (typeof users)[0]) => {
-    return user.Watched.filter(
-      (watched) => watched.userId === user.id && watched.movie.type === "movie"
-    ).length;
+    return user.Watched.filter((watched) => watched.movie.type === "movie")
+      .length;
   };
 
   let seriesWatchedCount = (user: (typeof users)[0]) => {
-    return user.Watched.filter(
-      (watched) => watched.userId === user.id && watched.movie.type === "series"
-    ).length;
+    return user.Watched.filter((watched) => watched.movie.type === "series")
+      .length;
   };
 
   return (

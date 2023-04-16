@@ -24,7 +24,7 @@ export const watchedRouter = createTRPCRouter({
       });
     }),
 
-  getWatchedMoviesbyUserId: protectedProcedure
+  getWatchedMovieIdsbyUserId: protectedProcedure
     .input(
       z.object({
         userId: z.string(),
@@ -36,7 +36,11 @@ export const watchedRouter = createTRPCRouter({
           userId: input.userId,
         },
         include: {
-          movie: true,
+          movie: {
+            select: {
+              id: true,
+            },
+          },
         },
       });
     }),

@@ -9,47 +9,11 @@ import ReviewStars from "./ReviewStars";
 export const RecentlyAddedFeed = () => {
   const { data: sessionData } = useSession();
   const { data: watchedMovies, isLoading: watchedMoviesLoading } =
-    api.watched.getWatchedMoviesbyUserId.useQuery({
+    api.watched.getWatchedMovieIdsbyUserId.useQuery({
       userId: sessionData?.user.id ?? "",
     });
-  const [includeWatched, setIncludeWatched] = useState<boolean>(
-    JSON.parse(
-      window.localStorage.getItem("includeWatched") ?? JSON.stringify(true)
-    ) ?? true
-  );
-  const [isSeries, setIsSeries] = useState<boolean>(
-    JSON.parse(
-      window.localStorage.getItem("isSeries") ?? JSON.stringify(true)
-    ) ?? true
-  );
   const { data: sortedMovieData, isLoading } =
-    api.movie.getAllSortedByRecent.useQuery();
-  const { data: series, isLoading: seriesLoading } =
-    api.movie.getAllSortedByRecent.useQuery();
-  const { data: movies, isLoading: moviesLoading } =
-    api.movie.getAllMovies.useQuery();
-  const [data, setData] = useState<typeof sortedMovieData>(undefined);
-
-  useEffect(() => {
-    console.log("triggered isSeries useEffect");
-    setData(isSeries ? series : movies);
-    console.log(data);
-
-    window.localStorage.setItem("isSeries", isSeries.toString());
-  }, [isSeries, seriesLoading, moviesLoading]);
-
-  useEffect(() => {
-    window.localStorage.setItem("includeWatched", includeWatched.toString());
-    console.log(JSON.parse(window.localStorage.getItem("includeWatched")!));
-  }, [includeWatched]);
-
-  useEffect(() => {
-    setIncludeWatched(
-      JSON.parse(window.localStorage.getItem("includeWatched")!)
-    );
-
-    setIsSeries(JSON.parse(window.localStorage.getItem("isSeries")!));
-  }, []);
+    api.movie.getSortedByRecent.useQuery();
 
   if (isLoading) return <LoadingPage />;
 
@@ -69,14 +33,6 @@ export const RecentlyAddedFeed = () => {
     if (watched.userId === sessionData?.user.id)
       watchedMovieIds.push(watched.movieId);
   });
-
-  const toggleIncludeWatched = () => {
-    setIncludeWatched((prev) => !prev);
-  };
-
-  const toggleType = () => {
-    setIsSeries((prev) => !prev);
-  };
 
   const getShortMovieTitle = (title: string) => {
     const maxLength = 20;
