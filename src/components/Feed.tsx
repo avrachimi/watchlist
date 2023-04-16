@@ -6,6 +6,23 @@ import { api } from "~/utils/api";
 import { LoadingPage, LoadingSpinner } from "./loading";
 import ReviewStars from "./ReviewStars";
 import { boolean } from "zod";
+import {
+  Card,
+  CardBody,
+  Stack,
+  Heading,
+  Divider,
+  CardFooter,
+  ButtonGroup,
+  Button,
+  Image,
+  Text,
+  SimpleGrid,
+  Box,
+  VStack,
+  Center,
+  Select,
+} from "@chakra-ui/react";
 
 interface SortObjType {
   by: string;
@@ -173,108 +190,65 @@ const DropdownMovieType = ({
 }: {
   setMovieType: React.Dispatch<React.SetStateAction<string>>;
 }) => {
-  const items = ["Movies", "Series"];
+  const items = ["All", "Movies", "Series"];
 
-  const [showContents, setShowContents] = useState(false);
-  const [options, setOptions] = useState(
+  const [selection, setSelection] = useState(
     JSON.parse(
-      window.localStorage.getItem("filterType") ?? JSON.stringify(items)
+      window.localStorage.getItem("filterType") ?? JSON.stringify(items[0])
     )
   );
 
-  useEffect(() => {
-    refreshDropdown();
-  }, []);
-
-  const refreshDropdown = () => {
-    let result = JSON.parse(
-      window.localStorage.getItem("filterType") ?? JSON.stringify(items)
-    );
-    setOptions(result);
-
-    if (result.length === 2) {
-      setMovieType("all");
-    } else {
-      if (result[0] === "Movies") setMovieType("movie");
-      if (result[0] === "Series") setMovieType("series");
+  const saveSelection = (sel: string) => {
+    switch (sel) {
+      case items[1]:
+        setMovieType("movie");
+        break;
+      case items[2]:
+        setMovieType("series");
+        break;
+      default:
+        setMovieType("all");
     }
+
+    window.localStorage.setItem("filterType", JSON.stringify(sel));
+    setSelection(sel);
   };
 
-  const toggleDropdownItem = (item: string) => {
-    if (options.includes(item)) {
-      let result = "";
-      if (item === "Movies") result = "Series";
-      if (item === "Series") result = "Movies";
+  useEffect(() => {
+    const sel = JSON.parse(
+      window.localStorage.getItem("filterType") ?? JSON.stringify(items[0])
+    );
+    saveSelection(sel);
+  }, []);
 
-      setOptions([result]);
-      setMovieType(result === "Movies" ? "movie" : "series");
-      window.localStorage.setItem("filterType", JSON.stringify([result]));
-    } else {
-      setOptions(items);
-      setMovieType("all");
-      window.localStorage.setItem("filterType", JSON.stringify(items));
+  const toggleDropdownItem = (item: string) => {
+    switch (item) {
+      case items[1]:
+        setMovieType("movie");
+        saveSelection("Movies");
+        break;
+      case items[2]:
+        setMovieType("series");
+        saveSelection("Series");
+        break;
+      default:
+        setMovieType("all");
+        saveSelection("All");
     }
   };
 
   return (
-    <div className="relative mx-2">
-      <button
-        id="dropdownCheckboxButton"
-        data-dropdown-toggle="dropdownDefaultCheckbox"
-        className="inline-flex items-center rounded-lg bg-blue-700 px-4 py-1.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-        type="button"
-        onClick={() => setShowContents((prev) => !prev)}
-      >
-        Type
-        <svg
-          className="ml-2 h-4 w-4"
-          aria-hidden="true"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
+    <Select>
+      {items.map((item) => (
+        <option
+          selected={selection.includes(item)}
+          value={item}
+          onClick={() => toggleDropdownItem(item)}
         >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M19 9l-7 7-7-7"
-          ></path>
-        </svg>
-      </button>
-      {showContents && (
-        <div
-          id="dropdownDefaultCheckbox"
-          className="absolute top-0 z-10 mt-10 w-48 divide-y divide-gray-100 rounded-lg bg-white shadow dark:divide-gray-600 dark:bg-gray-700"
-        >
-          <ul
-            className="space-y-3 p-3 text-sm text-gray-700 dark:text-gray-200"
-            aria-labelledby="dropdownCheckboxButton"
-          >
-            {items.map((item) => (
-              <li key={item}>
-                <div className="flex items-center">
-                  <input
-                    onClick={() => toggleDropdownItem(item)}
-                    checked={options.includes(item)}
-                    id={item}
-                    type="checkbox"
-                    value=""
-                    className="h-4 w-4 cursor-pointer rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-500 dark:bg-gray-600 dark:ring-offset-gray-700 dark:focus:ring-blue-600 dark:focus:ring-offset-gray-700"
-                  />
-                  <label
-                    htmlFor={item}
-                    className="ml-2 cursor-pointer text-sm font-medium text-gray-900 dark:text-gray-300"
-                  >
-                    {item}
-                  </label>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-    </div>
+          {item}
+        </option>
+      ))}
+    </Select>
   );
 };
 
@@ -368,6 +342,20 @@ const DropdownTimePeriod = ({
     }
     setShowContents((prev) => !prev);
   };
+
+  return (
+    <Select>
+      {items.map((item) => (
+        <option
+          selected={selected === item}
+          value={item}
+          onClick={() => toggleDropdownItem(item)}
+        >
+          {item}
+        </option>
+      ))}
+    </Select>
+  );
 
   return (
     <div className="relative mx-2">
@@ -767,6 +755,12 @@ export const Feed = () => {
     return title;
   };
 
+  const getShortMoviePlot = (plot: string) => {
+    const maxLength = 70;
+    if (plot.length > maxLength) return plot.substring(0, maxLength) + "..";
+    return plot;
+  };
+
   return (
     <div className="flex w-full flex-col justify-center sm:px-5 2xl:px-20">
       <div className="mt-2 flex w-full flex-col items-start justify-between px-5 lg:flex-row lg:justify-start lg:gap-8">
@@ -795,37 +789,46 @@ export const Feed = () => {
         </label>
       </div>
       {!showLoading && (
-        <div className="flex w-full justify-center">
-          <div className="my-2 mx-3 grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8">
-            {!includeWatched &&
-              movieData?.map((movie) =>
-                !watchedMovieIds.includes(movie.id) ? (
-                  <Link
-                    href={`/movies/${movie.id}`}
-                    key={movie.id}
-                    className="m-2 flex flex-col justify-between overflow-hidden rounded-lg border-2 border-slate-200"
-                  >
-                    <img
-                      src={movie.imageUrl}
-                      className="block h-60 w-full border-b object-cover"
-                    />
-                    <div className="flex w-full flex-col items-center justify-between">
-                      <div className="mt-2 w-full text-center text-sm font-bold">
-                        {getShortMovieTitle(movie.title)}
-                      </div>
-                      <div className="mt-3 flex w-full flex-col items-center justify-center px-1 pb-2">
-                        <ReviewStars rating={movie.friendRating} />
-                        <div className="text-right text-sm">
-                          <div className="mt-1 flex items-center justify-end">
+        <Box w={"full"} textAlign={"center"} p={5}>
+          <Box>
+            <SimpleGrid minChildWidth={48} spacing={3}>
+              {!includeWatched &&
+                movieData?.map((movie) =>
+                  !watchedMovieIds.includes(movie.id) ? (
+                    <Card maxW={56}>
+                      <CardBody>
+                        <Image
+                          src={movie.imageUrl}
+                          alt={`${movie.title} poster image`}
+                          borderRadius="lg"
+                          w={"full"}
+                          h={64}
+                        />
+                        <Stack mt="6" spacing="3">
+                          <Heading size="sm">
+                            {getShortMovieTitle(movie.title)}
+                          </Heading>
+                          <Text fontSize={"sm"}>
+                            {getShortMoviePlot(movie.plot)}
+                          </Text>
+                        </Stack>
+                      </CardBody>
+                      <Divider />
+                      <CardFooter>
+                        <VStack w={"full"}>
+                          <Box>
+                            <ReviewStars rating={movie.friendRating} />
+                          </Box>
+                          <Box display={"flex"} alignItems={"center"}>
                             <AiTwotoneEye className="mx-1" />
-                            <span>{movie.Watched.length}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                ) : null
-              )}
+                            {movie.Watched.length}
+                          </Box>
+                        </VStack>
+                      </CardFooter>
+                    </Card>
+                  ) : null
+                )}
+            </SimpleGrid>
             {includeWatched &&
               movieData?.map((movie) => (
                 <Link
@@ -853,8 +856,8 @@ export const Feed = () => {
                   </div>
                 </Link>
               ))}
-          </div>
-        </div>
+          </Box>
+        </Box>
       )}
       {showLoading && (
         <div className="flex h-[70vh] w-full items-center justify-center">

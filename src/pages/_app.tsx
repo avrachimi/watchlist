@@ -5,6 +5,19 @@ import { SessionProvider } from "next-auth/react";
 import { api } from "~/utils/api";
 
 import "~/styles/globals.css";
+import {
+  ChakraProvider,
+  type ThemeConfig,
+  extendTheme,
+} from "@chakra-ui/react";
+
+const config: ThemeConfig = {
+  initialColorMode: "dark",
+  useSystemColorMode: false,
+};
+
+// 3. extend the theme
+const theme = extendTheme({ config });
 
 const MyApp: AppType<{ session: Session | null }> = ({
   Component,
@@ -12,7 +25,9 @@ const MyApp: AppType<{ session: Session | null }> = ({
 }) => {
   return (
     <SessionProvider session={session}>
-      <Component {...pageProps} className="overflow-y-scroll" />
+      <ChakraProvider theme={theme}>
+        <Component {...pageProps} className="overflow-y-scroll" />
+      </ChakraProvider>
     </SessionProvider>
   );
 };

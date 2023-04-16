@@ -3,6 +3,7 @@ import { signIn, signOut, useSession } from "next-auth/react";
 
 import { Navbar } from "~/components/navbar";
 import { Feed } from "~/components/Feed";
+import { ColorModeScript } from "@chakra-ui/react";
 
 const Home = () => {
   const { data: sessionData } = useSession();
@@ -32,6 +33,7 @@ const Home = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="min-w-screen min-h-screen bg-gray-900 pb-5">
+        <ColorModeScript />
         <Navbar />
         <Feed />
       </main>
